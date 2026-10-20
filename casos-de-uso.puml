@@ -1,0 +1,64 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+skinparam actorStyle awesome
+
+actor Aluno
+actor Professor
+actor "Empresa parceira" as Empresa
+actor "Serviço de e-mail" as Email
+
+rectangle "Sistema de Moeda Estudantil" {
+  usecase "Cadastrar-se como aluno" as UC1
+  usecase "Cadastrar-se como empresa" as UC2
+  usecase "Autenticar usuário" as UC3
+  usecase "Creditar moedas do semestre" as UC4
+  usecase "Distribuir moedas" as UC5
+  usecase "Consultar extrato e saldo" as UC6
+  usecase "Gerenciar vantagens" as UC7
+  usecase "Resgatar vantagem" as UC8
+  usecase "Notificar recebimento de moedas" as UC9
+  usecase "Gerar cupom e código" as UC10
+  usecase "Enviar cupom ao aluno" as UC11
+  usecase "Enviar dados de conferência à empresa" as UC12
+}
+
+Aluno -- UC1
+Aluno -- UC3
+Aluno -- UC6
+Aluno -- UC8
+Professor -- UC3
+Professor -- UC4
+Professor -- UC5
+Professor -- UC6
+Empresa -- UC2
+Empresa -- UC3
+Empresa -- UC7
+Email -- UC9
+Email -- UC11
+Email -- UC12
+
+UC4 ..> UC3 : <<include>>
+UC5 ..> UC3 : <<include>>
+UC6 ..> UC3 : <<include>>
+UC7 ..> UC3 : <<include>>
+UC8 ..> UC3 : <<include>>
+UC5 ..> UC9 : <<include>>
+UC8 ..> UC10 : <<include>>
+UC8 ..> UC11 : <<include>>
+UC8 ..> UC12 : <<include>>
+note right of UC4
+Crédito de 1.000 moedas por semestre;
+saldo remanescente é acumulado.
+Professor é previamente cadastrado
+a partir da lista da instituição.
+end note
+note right of UC5
+Exige saldo suficiente, aluno destinatário,
+quantidade positiva e motivo obrigatório.
+end note
+note right of UC8
+Exige saldo suficiente; debita o custo
+e registra o resgate confirmado.
+end note
+@enduml

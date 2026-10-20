@@ -1,0 +1,71 @@
+@startuml
+left to right direction
+skinparam componentStyle uml2
+skinparam packageStyle rectangle
+
+actor Aluno
+actor Professor
+actor "Empresa parceira" as Empresa
+cloud "Serviço externo de e-mail" as Mail
+database "Banco de dados" as DB
+
+package "Sistema de Moeda Estudantil — arquitetura lógica MVC" {
+  component "Interfaces Web" as View <<View>>
+  component "Controladores MVC" as Controller <<Controller>>
+  component "Serviço de Autenticação e Autorização" as Auth <<Service>>
+  component "Serviço de Contas e Extrato" as Account <<Service>>
+  component "Serviço de Mérito" as Merit <<Service>>
+  component "Serviço de Vantagens e Resgates" as Rewards <<Service>>
+  component "Serviço de Notificações" as Notify <<Service>>
+  component "Repositórios" as Repos <<Repository>>
+  interface "IConta e Extrato" as IAccount
+  interface "IMérito" as IMerit
+  interface "IVantagens e Resgates" as IRewards
+  interface "IIdentidade" as IAuth
+  interface "INotificação" as INotify
+  interface "IPersistência" as IPersist
+  interface "IEntrega de e-mail" as IMail
+}
+
+Aluno --> View
+Professor --> View
+Empresa --> View
+View --> Controller
+Controller --> IAuth
+Controller --> IAccount
+Controller --> IMerit
+Controller --> IRewards
+Auth - IAuth
+Account - IAccount
+Merit - IMerit
+Rewards - IRewards
+Account --> IPersist
+Merit --> IPersist
+Rewards --> IPersist
+Auth --> IPersist
+Notify - INotify
+Merit --> INotify : recebimento confirmado
+Rewards --> INotify : resgate confirmado
+Notify --> IMail
+Repos - IPersist
+Repos --> DB
+Mail <-- IMail
+
+note bottom of Merit
+Aplica crédito semestral acumulado,
+transferência atômica e validação
+de saldo e motivo.
+end note
+note bottom of Rewards
+Valida saldo, registra débito e resgate,
+gera código de cupom e aciona notificações.
+end note
+note bottom of Auth
+Valida credenciais e perfil autorizado;
+hash de senha armazenado com segurança.
+end note
+note bottom of Repos
+Persistência relacional é apenas uma
+proposta lógica; tecnologia não definida.
+end note
+@enduml

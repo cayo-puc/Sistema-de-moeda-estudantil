@@ -1,0 +1,133 @@
+@startuml
+skinparam classAttributeIconSize 0
+hide empty members
+
+abstract class Usuario {
+  +id: UUID
+  +nome: String
+  +email: String
+  +hashSenha: String
+  +autenticar(credencial): ResultadoAutenticacao
+}
+class Aluno {
+  +cpf: String
+  +rg: String
+  +endereco: String
+}
+class Professor {
+  +cpf: String
+}
+class EmpresaParceira {
+  +nomeLegal: String
+  +identificador: String
+}
+Usuario <|-- Aluno
+Usuario <|-- Professor
+Usuario <|-- EmpresaParceira
+
+class InstituicaoEnsino {
+  +id: UUID
+  +nome: String
+}
+class Curso {
+  +id: UUID
+  +nome: String
+}
+class Departamento {
+  +id: UUID
+  +nome: String
+}
+InstituicaoEnsino "1" <-- "0..*" Aluno : vínculo
+Curso "1" <-- "0..*" Aluno : cursa
+InstituicaoEnsino "1" <-- "0..*" Professor : vínculo
+Departamento "1" <-- "0..*" Professor : lotação
+
+class ContaMoedas {
+  +id: UUID
+  +saldoAtual: Integer
+  +consultarSaldo(): Integer
+}
+Aluno "1" *-- "1" ContaMoedas : possui
+Professor "1" *-- "1" ContaMoedas : possui
+
+abstract class Movimentacao {
+  +id: UUID
+  +quantidade: Integer
+  +instante: DateTime
+  +tipo: TipoMovimentacao
+}
+class Transferencia {
+  +motivo: String
+}
+class CreditoSemestral {
+  +periodo: String
+  +quantidadeCreditada: Integer = 1000
+}
+class DebitoResgate
+Movimentacao <|-- Transferencia
+Movimentacao <|-- CreditoSemestral
+Movimentacao <|-- DebitoResgate
+Transferencia "1" --> "1" ContaMoedas : origem
+Transferencia "1" --> "1" ContaMoedas : destino
+CreditoSemestral "0..*" --> "1" ContaMoedas : credita
+DebitoResgate "0..*" --> "1" ContaMoedas : debita
+CreditoSemestral "0..*" --> "1" Professor : concedido a
+
+class Vantagem {
+  +id: UUID
+  +descricao: String
+  +fotografia: URI
+  +custoMoedas: Integer
+  +dadosOferta: String
+}
+EmpresaParceira "1" o-- "0..*" Vantagem : oferece
+class Resgate {
+  +id: UUID
+  +instante: DateTime
+  +custoAplicado: Integer
+  +status: StatusResgate
+  +confirmar(): Cupom
+}
+Aluno "1" --> "0..*" Resgate : realiza
+Vantagem "1" --> "0..*" Resgate : selecionada em
+Resgate "1" *-- "1" DebitoResgate : gera débito
+class Cupom {
+  +id: UUID
+  +codigoConferencia: String
+  +instanteGeracao: DateTime
+}
+Resgate "1" *-- "1" Cupom : confirmado gera
+
+enum TipoMovimentacao {
+  CREDITO_SEMESTRAL
+  TRANSFERENCIA
+  DEBITO_RESGATE
+}
+enum StatusResgate {
+  CONFIRMADO
+}
+enum ResultadoAutenticacao {
+  ACEITO
+  RECUSADO
+}
+
+note bottom of ContaMoedas
+saldoAtual >= 0
+Saldo é conciliável com o histórico;
+lançamentos não são apagados.
+end note
+note right of CreditoSemestral
+unicidade(professor, periodo)
+Saldo anterior + 1.000 moedas
+end note
+note bottom of Transferencia
+quantidade > 0
+motivo não vazio
+origem.saldo >= quantidade
+Débito e crédito são atômicos.
+end note
+note bottom of Resgate
+custoAplicado = custo da oferta
+na confirmação; saldo suficiente.
+end note
+@enduml
