@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1540px" height="895px" viewBox="0 0 1540 895">
+  <rect x="0" y="0" width="1540" height="895" fill="#FFFFFF"/>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 1 L 8 5 L 0 9 z" fill="#475569"/>
+    </marker>
+  </defs>
+  <path d="M 175 186 L 175 240" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="133.0" y="204.0" width="84" height="15" rx="3" fill="#FFFFFF" opacity="0.9"/>
+  <text x="175.0" y="215.0" font-family="sans-serif" font-size="9.5" font-weight="600" fill="#334155" text-anchor="middle">oferece (1:0..N)</text>
+  <path d="M 25 110 L 18 110 L 18 450 L 40 450" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="-9.5" y="271.0" width="84" height="15" rx="3" fill="#FFFFFF" opacity="0.9"/>
+  <text x="32.5" y="282.0" font-family="sans-serif" font-size="9.5" font-weight="600" fill="#334155" text-anchor="middle">possui (1:0..N)</text>
+  <path d="M 310 120 L 350 120 L 350 320 L 400 320" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="313.0" y="211.0" width="84" height="15" rx="3" fill="#FFFFFF" opacity="0.9"/>
+  <text x="355.0" y="222.0" font-family="sans-serif" font-size="9.5" font-weight="600" fill="#334155" text-anchor="middle">vincula (1:0..N)</text>
+  <path d="M 310 295 L 400 295" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="313.0" y="286.0" width="84" height="15" rx="3" fill="#FFFFFF" opacity="0.9"/>
+  <text x="355.0" y="297.0" font-family="sans-serif" font-size="9.5" font-weight="600" fill="#334155" text-anchor="middle">cursa (1:0..N)</text>
+  <path d="M 310 465 L 355 465 L 355 545 L 400 545" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="313.0" y="496.0" width="84" height="15" rx="3" fill="#FFFFFF" opacity="0.9"/>
+  <text x="355.0" y="507.0" font-family="sans-serif" font-size="9.5" font-weight="600" fill="#334155" text-anchor="middle">lota (1:0..N)</text>
+  <path d="M 545 220 L 545 270" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="503.0" y="236.0" width="84" height="15" rx="3" fill="#FFFFFF" opacity="0.9"/>
+  <text x="545.0" y="247.0" font-family="sans-serif" font-size="9.5" font-weight="600" fill="#334155" text-anchor="middle">JOINED (1:0..1)</text>
+  <path d="M 382 120 L 372 120 L 372 515 L 400 515" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="349.0" y="308.5" width="84" height="15" rx="3" fill="#FFFFFF" opacity="0.9"/>
+  <text x="391.0" y="319.5" font-family="sans-serif" font-size="9.5" font-weight="600" fill="#334155" text-anchor="middle">JOINED (1:0..1)</text>
+  <path d="M 382 145 L 364 145 L 364 715 L 400 715" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="349.0" y="421.0" width="84" height="15" rx="3" fill="#FFFFFF" opacity="0.9"/>
+  <text x="391.0" y="432.0" font-family="sans-serif" font-size="9.5" font-weight="600" fill="#334155" text-anchor="middle">JOINED (1:0..1)</text>
+  <path d="M 690 105 L 790 105" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="698.0" y="96.0" width="84" height="15" rx="3" fill="#FFFFFF" opacity="0.9"/>
+  <text x="740.0" y="107.0" font-family="sans-serif" font-size="9.5" font-weight="600" fill="#334155" text-anchor="middle">titular (1:0..1)</text>
+  <path d="M 1090 95 L 1190 95" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="1098.0" y="86.0" width="84" height="15" rx="3" fill="#FFFFFF" opacity="0.9"/>
+  <text x="1140.0" y="97.0" font-family="sans-serif" font-size="9.5" font-weight="600" fill="#334155" text-anchor="middle">origem/destino (1:0..N)</text>
+  <path d="M 1090 135 L 1140 135 L 1140 265 L 1190 265" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="1098.0" y="191.0" width="84" height="15" rx="3" fill="#FFFFFF" opacity="0.9"/>
+  <text x="1140.0" y="202.0" font-family="sans-serif" font-size="9.5" font-weight="600" fill="#334155" text-anchor="middle">credita (1:0..N)</text>
+  <path d="M 1090 265 L 1155 265 L 1155 135 L 1190 135" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="1098.0" y="191.0" width="84" height="15" rx="3" fill="#FFFFFF" opacity="0.9"/>
+  <text x="1140.0" y="202.0" font-family="sans-serif" font-size="9.5" font-weight="600" fill="#334155" text-anchor="middle">especializa (1:0..1)</text>
+  <path d="M 1090 295 L 1190 295" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="1098.0" y="286.0" width="84" height="15" rx="3" fill="#FFFFFF" opacity="0.9"/>
+  <text x="1140.0" y="297.0" font-family="sans-serif" font-size="9.5" font-weight="600" fill="#334155" text-anchor="middle">especializa (1:0..1)</text>
+  <path d="M 1090 325 L 1155 325 L 1155 465 L 1190 465" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="1098.0" y="386.0" width="84" height="15" rx="3" fill="#FFFFFF" opacity="0.9"/>
+  <text x="1140.0" y="397.0" font-family="sans-serif" font-size="9.5" font-weight="600" fill="#334155" text-anchor="middle">especializa (1:0..1)</text>
+  <path d="M 690 365 L 745 365 L 745 495 L 790 495" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="698.0" y="421.0" width="84" height="15" rx="3" fill="#FFFFFF" opacity="0.9"/>
+  <text x="740.0" y="432.0" font-family="sans-serif" font-size="9.5" font-weight="600" fill="#334155" text-anchor="middle">realiza (1:0..N)</text>
+  <path d="M 690 735 L 790 735" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="698.0" y="726.0" width="84" height="15" rx="3" fill="#FFFFFF" opacity="0.9"/>
+  <text x="740.0" y="737.0" font-family="sans-serif" font-size="9.5" font-weight="600" fill="#334155" text-anchor="middle">oferece (1:0..N)</text>
+  <path d="M 940 660 L 940 610" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="898.0" y="626.0" width="84" height="15" rx="3" fill="#FFFFFF" opacity="0.9"/>
+  <text x="940.0" y="637.0" font-family="sans-serif" font-size="9.5" font-weight="600" fill="#334155" text-anchor="middle">selecionada (1:0..N)</text>
+  <path d="M 1190 490 L 1090 490" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="1098.0" y="481.0" width="84" height="15" rx="3" fill="#FFFFFF" opacity="0.9"/>
+  <text x="1140.0" y="492.0" font-family="sans-serif" font-size="9.5" font-weight="600" fill="#334155" text-anchor="middle">gera débito (1:1)</text>
+  <path d="M 1090 565 L 1145 565 L 1145 635 L 1190 635" fill="none" stroke="#475569" stroke-width="1.5" marker-end="url(#arrow)"/>
+  <rect x="1098.0" y="591.0" width="84" height="15" rx="3" fill="#FFFFFF" opacity="0.9"/>
+  <text x="1140.0" y="602.0" font-family="sans-serif" font-size="9.5" font-weight="600" fill="#334155" text-anchor="middle">emite cupom (1:1)</text>
+  <g id="table-instituicoes">    <rect x="40" y="50" width="270" height="120" rx="5" ry="5" fill="#FFFFFF" stroke="#1E293B" stroke-width="1.4"/>    <rect x="40" y="50" width="270" height="28" rx="5" ry="5" fill="#1E3A8A"/>    <rect x="40" y="70" width="270" height="8" fill="#1E3A8A"/>    <text x="52" y="69" font-family="sans-serif" font-size="12.5" font-weight="700" fill="#FFFFFF">instituicoes_ensino</text>
+    <rect x="48" y="85" width="38" height="14" rx="3" fill="#DBEAFE"/>    <text x="67" y="95" font-family="sans-serif" font-size="8.5" font-weight="700" fill="#1E3A8A" text-anchor="middle">PK</text>
+    <text x="92" y="96" font-family="sans-serif" font-size="11" font-weight="700" fill="#0F172A">id</text>    <text x="300" y="96" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">VARCHAR(36)</text>
+    <rect x="48" y="105" width="38" height="14" rx="3" fill="#F1F5F9"/>    <text x="67" y="115" font-family="sans-serif" font-size="8.5" font-weight="700" fill="#475569" text-anchor="middle">UK</text>
+    <text x="92" y="116" font-family="sans-serif" font-size="11" font-weight="400" fill="#0F172A">nome</text>    <text x="300" y="116" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">VARCHAR(150)</text>
+    <text x="92" y="136" font-family="sans-serif" font-size="11" font-weight="400" fill="#0F172A">sigla</text>    <text x="300" y="136" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">VARCHAR(20)</text>
+    <text x="92" y="156" font-family="sans-serif" font-size="11" font-weight="400" fill="#0F172A">criado_em</text>    <text x="300" y="156" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">TIMESTAMP</text>
+  </g>
+  <g id="table-cursos">    <rect x="40" y="240" width="270" height="100" rx="5" ry="5" fill="#FFFFFF" stroke="#1E293B" stroke-width="1.4"/>    <rect x="40" y="240" width="270" height="28" rx="5" ry="5" fill="#1E3A8A"/>    <rect x="40" y="260" width="270" height="8" fill="#1E3A8A"/>    <text x="52" y="259" font-family="sans-serif" font-size="12.5" font-weight="700" fill="#FFFFFF">cursos</text>
+    <rect x="48" y="275" width="38" height="14" rx="3" fill="#DBEAFE"/>    <text x="67" y="285" font-family="sans-serif" font-size="8.5" font-weight="700" fill="#1E3A8A" text-anchor="middle">PK</text>
+    <text x="92" y="286" font-family="sans-serif" font-size="11" font-weight="700" fill="#0F172A">id</text>    <text x="300" y="286" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">VARCHAR(36)</text>
+    <rect x="48" y="295" width="38" height="14" rx="3" fill="#FEF3C7"/>    <text x="67" y="305" font-family="sans-serif" font-size="8.5" font-weight="700" fill="#92400E" text-anchor="middle">FK</text>
+    <text x="92" y="306" font-family="sans-serif" font-size="11" font-weight="400" fill="#0F172A">instituicao_id</text>    <text x="300" y="306" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">VARCHAR(36)</text>
+    <text x="92" y="326" font-family="sans-serif" font-size="11" font-weight="400" fill="#0F172A">nome</text>    <text x="300" y="326" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">VARCHAR(150)</text>
+  </g>
+  <g id="table-departamentos">    <rect x="40" y="400" width="270" height="100" rx="5" ry="5" fill="#FFFFFF" stroke="#1E293B" stroke-width="1.4"/>    <rect x="40" y="400" width="270" height="28" rx="5" ry="5" fill="#1E3A8A"/>    <rect x="40" y="420" width="270" height="8" fill="#1E3A8A"/>    <text x="52" y="419" font-family="sans-serif" font-size="12.5" font-weight="700" fill="#FFFFFF">departamentos</text>
+    <rect x="48" y="435" width="38" height="14" rx="3" fill="#DBEAFE"/>    <text x="67" y="445" font-family="sans-serif" font-size="8.5" font-weight="700" fill="#1E3A8A" text-anchor="middle">PK</text>
+    <text x="92" y="446" font-family="sans-serif" font-size="11" font-weight="700" fill="#0F172A">id</text>    <text x="300" y="446" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">VARCHAR(36)</text>
+    <rect x="48" y="455" width="38" height="14" rx="3" fill="#FEF3C7"/>    <text x="67" y="465" font-family="sans-serif" font-size="8.5" font-weight="700" fill="#92400E" text-anchor="middle">FK</text>
+    <text x="92" y="466" font-family="sans-serif" font-size="11" font-weight="400" fill="#0F172A">instituicao_id</text>    <text x="300" y="466" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">VARCHAR(36)</text>
+    <text x="92" y="486" font-family="sans-serif" font-size="11" font-weight="400" fill="#0F172A">nome</text>    <text x="300" y="486" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">VARCHAR(150)</text>
+  </g>
+  <g id="table-usuarios">    <rect x="400" y="40" width="290" height="180" rx="5" ry="5" fill="#FFFFFF" stroke="#1E293B" stroke-width="1.4"/>    <rect x="400" y="40" width="290" height="28" rx="5" ry="5" fill="#1E3A8A"/>    <rect x="400" y="60" width="290" height="8" fill="#1E3A8A"/>    <text x="412" y="59" font-family="sans-serif" font-size="12.5" font-weight="700" fill="#FFFFFF">usuarios</text>
+    <rect x="408" y="75" width="38" height="14" rx="3" fill="#DBEAFE"/>    <text x="427" y="85" font-family="sans-serif" font-size="8.5" font-weight="700" fill="#1E3A8A" text-anchor="middle">PK</text>
+    <text x="452" y="86" font-family="sans-serif" font-size="11" font-weight="700" fill="#0F172A">id</text>    <text x="680" y="86" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">VARCHAR(36)</text>
+    <text x="452" y="106" font-family="sans-serif" font-size="11" font-weight="400" fill="#0F172A">nome</text>    <text x="680" y="106" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">VARCHAR(150)</text>
+    <rect x="408" y="115" width="38" height="14" rx="3" fill="#F1F5F9"/>    <text x="427" y="125" font-family="sans-serif" font-size="8.5" font-weight="700" fill="#475569" text-anchor="middle">UK</text>
+    <text x="452" y="126" font-family="sans-serif" font-size="11" font-weight="400" fill="#0F172A">email</text>    <text x="680" y="126" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">VARCHAR(150)</text>
+    <text x="452" y="146" font-family="sans-serif" font-size="11" font-weight="400" fill="#0F172A">hash_senha</text>    <text x="680" y="146" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">VARCHAR(255)</text>
+    <text x="452" y="166" font-family="sans-serif" font-size="11" font-weight="400" fill="#0F172A">tipo_usuario</text>    <text x="680" y="166" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">VARCHAR(20)</text>
+    <text x="452" y="186" font-family="sans-serif" font-size="11" font-weight="400" fill="#0F172A">criado_em</text>    <text x="680" y="186" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">TIMESTAMP</text>
+    <text x="452" y="206" font-family="sans-serif" font-size="11" font-weight="400" fill="#0F172A">atualizado_em</text>    <text x="680" y="206" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">TIMESTAMP</text>
+  </g>
+  <g id="table-alunos">    <rect x="400" y="270" width="290" height="160" rx="5" ry="5" fill="#FFFFFF" stroke="#1E293B" stroke-width="1.4"/>    <rect x="400" y="270" width="290" height="28" rx="5" ry="5" fill="#1E3A8A"/>    <rect x="400" y="290" width="290" height="8" fill="#1E3A8A"/>    <text x="412" y="289" font-family="sans-serif" font-size="12.5" font-weight="700" fill="#FFFFFF">alunos</text>
+    <rect x="408" y="305" width="38" height="14" rx="3" fill="#DBEAFE"/>    <text x="427" y="315" font-family="sans-serif" font-size="8.5" font-weight="700" fill="#1E3A8A" text-anchor="middle">PK,FK</text>
+    <text x="452" y="316" font-family="sans-serif" font-size="11" font-weight="700" fill="#0F172A">usuario_id</text>    <text x="680" y="316" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">VARCHAR(36)</text>
+    <rect x="408" y="325" width="38" height="14" rx="3" fill="#F1F5F9"/>    <text x="427" y="335" font-family="sans-serif" font-size="8.5" font-weight="700" fill="#475569" text-anchor="middle">UK</text>
+    <text x="452" y="336" font-family="sans-serif" font-size="11" font-weight="400" fill="#0F172A">cpf</text>    <text x="680" y="336" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">VARCHAR(14)</text>
+    <text x="452" y="356" font-family="sans-serif" font-size="11" font-weight="400" fill="#0F172A">rg</text>    <text x="680" y="356" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">VARCHAR(20)</text>
+    <text x="452" y="376" font-family="sans-serif" font-size="11" font-weight="400" fill="#0F172A">endereco</text>    <text x="680" y="376" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">VARCHAR(255)</text>
+    <rect x="408" y="385" width="38" height="14" rx="3" fill="#FEF3C7"/>    <text x="427" y="395" font-family="sans-serif" font-size="8.5" font-weight="700" fill="#92400E" text-anchor="middle">FK</text>
+    <text x="452" y="396" font-family="sans-serif" font-size="11" font-weight="400" fill="#0F172A">instituicao_id</text>    <text x="680" y="396" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">VARCHAR(36)</text>
+    <rect x="408" y="405" width="38" height="14" rx="3" fill="#FEF3C7"/>    <text x="427" y="415" font-family="sans-serif" font-size="8.5" font-weight="700" fill="#92400E" text-anchor="middle">FK</text>
+    <text x="452" y="416" font-family="sans-serif" font-size="11" font-weight="400" fill="#0F172A">curso_id</text>    <text x="680" y="416" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">VARCHAR(36)</text>
+  </g>
+  <g id="table-professores">    <rect x="400" y="485" width="290" height="120" rx="5" ry="5" fill="#FFFFFF" stroke="#1E293B" stroke-width="1.4"/>    <rect x="400" y="485" width="290" height="28" rx="5" ry="5" fill="#1E3A8A"/>    <rect x="400" y="505" width="290" height="8" fill="#1E3A8A"/>    <text x="412" y="504" font-family="sans-serif" font-size="12.5" font-weight="700" fill="#FFFFFF">professores</text>
+    <rect x="408" y="520" width="38" height="14" rx="3" fill="#DBEAFE"/>    <text x="427" y="530" font-family="sans-serif" font-size="8.5" font-weight="700" fill="#1E3A8A" text-anchor="middle">PK,FK</text>
+    <text x="452" y="531" font-family="sans-serif" font-size="11" font-weight="700" fill="#0F172A">usuario_id</text>    <text x="680" y="531" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">VARCHAR(36)</text>
+    <rect x="408" y="540" width="38" height="14" rx="3" fill="#F1F5F9"/>    <text x="427" y="550" font-family="sans-serif" font-size="8.5" font-weight="700" fill="#475569" text-anchor="middle">UK</text>
+    <text x="452" y="551" font-family="sans-serif" font-size="11" font-weight="400" fill="#0F172A">cpf</text>    <text x="680" y="551" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">VARCHAR(14)</text>
+    <rect x="408" y="560" width="38" height="14" rx="3" fill="#FEF3C7"/>    <text x="427" y="570" font-family="sans-serif" font-size="8.5" font-weight="700" fill="#92400E" text-anchor="middle">FK</text>
+    <text x="452" y="571" font-family="sans-serif" font-size="11" font-weight="400" fill="#0F172A">instituicao_id</text>    <text x="680" y="571" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">VARCHAR(36)</text>
+    <rect x="408" y="580" width="38" height="14" rx="3" fill="#FEF3C7"/>    <text x="427" y="590" font-family="sans-serif" font-size="8.5" font-weight="700" fill="#92400E" text-anchor="middle">FK</text>
+    <text x="452" y="591" font-family="sans-serif" font-size="11" font-weight="400" fill="#0F172A">departamento_id</text>    <text x="680" y="591" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">VARCHAR(36)</text>
+  </g>
+  <g id="table-empresas">    <rect x="400" y="665" width="290" height="120" rx="5" ry="5" fill="#FFFFFF" stroke="#1E293B" stroke-width="1.4"/>    <rect x="400" y="665" width="290" height="28" rx="5" ry="5" fill="#1E3A8A"/>    <rect x="400" y="685" width="290" height="8" fill="#1E3A8A"/>    <text x="412" y="684" font-family="sans-serif" font-size="12.5" font-weight="700" fill="#FFFFFF">empresas_parceiras</text>
+    <rect x="408" y="700" width="38" height="14" rx="3" fill="#DBEAFE"/>    <text x="427" y="710" font-family="sans-serif" font-size="8.5" font-weight="700" fill="#1E3A8A" text-anchor="middle">PK,FK</text>
+    <text x="452" y="711" font-family="sans-serif" font-size="11" font-weight="700" fill="#0F172A">usuario_id</text>    <text x="680" y="711" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">VARCHAR(36)</text>
+    <text x="452" y="731" font-family="sans-serif" font-size="11" font-weight="400" fill="#0F172A">nome_legal</text>    <text x="680" y="731" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">VARCHAR(180)</text>
+    <rect x="408" y="740" width="38" height="14" rx="3" fill="#F1F5F9"/>    <text x="427" y="750" font-family="sans-serif" font-size="8.5" font-weight="700" fill="#475569" text-anchor="middle">UK</text>
+    <text x="452" y="751" font-family="sans-serif" font-size="11" font-weight="400" fill="#0F172A">identificador</text>    <text x="680" y="751" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">VARCHAR(20)</text>
+    <text x="452" y="771" font-family="sans-serif" font-size="11" font-weight="400" fill="#0F172A">descricao</text>    <text x="680" y="771" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">TEXT</text>
+  </g>
+  <g id="table-contas">    <rect x="790" y="50" width="300" height="120" rx="5" ry="5" fill="#FFFFFF" stroke="#1E293B" stroke-width="1.4"/>    <rect x="790" y="50" width="300" height="28" rx="5" ry="5" fill="#1E3A8A"/>    <rect x="790" y="70" width="300" height="8" fill="#1E3A8A"/>    <text x="802" y="69" font-family="sans-serif" font-size="12.5" font-weight="700" fill="#FFFFFF">contas_moedas</text>
+    <rect x="798" y="85" width="38" height="14" rx="3" fill="#DBEAFE"/>    <text x="817" y="95" font-family="sans-serif" font-size="8.5" font-weight="700" fill="#1E3A8A" text-anchor="middle">PK</text>
+    <text x="842" y="96" font-family="sans-serif" font-size="11" font-weight="700" fill="#0F172A">id</text>    <text x="1080" y="96" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">VARCHAR(36)</text>
+    <rect x="798" y="105" width="38" height="14" rx="3" fill="#FEF3C7"/>    <text x="817" y="115" font-family="sans-serif" font-size="8.5" font-weight="700" fill="#92400E" text-anchor="middle">FK,UK</text>
+    <text x="842" y="116" font-family="sans-serif" font-size="11" font-weight="400" fill="#0F172A">usuario_id</text>    <text x="1080" y="116" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">VARCHAR(36)</text>
+    <rect x="798" y="125" width="38" height="14" rx="3" fill="#F1F5F9"/>    <text x="817" y="135" font-family="sans-serif" font-size="8.5" font-weight="700" fill="#475569" text-anchor="middle">CHK</text>
+    <text x="842" y="136" font-family="sans-serif" font-size="11" font-weight="400" fill="#0F172A">saldo_atual</text>    <text x="1080" y="136" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">INTEGER &gt;= 0</text>
+    <text x="842" y="156" font-family="sans-serif" font-size="11" font-weight="400" fill="#0F172A">atualizado_em</text>    <text x="1080" y="156" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">TIMESTAMP</text>
+  </g>
+  <g id="table-movimentacoes">    <rect x="790" y="235" width="300" height="120" rx="5" ry="5" fill="#FFFFFF" stroke="#1E293B" stroke-width="1.4"/>    <rect x="790" y="235" width="300" height="28" rx="5" ry="5" fill="#1E3A8A"/>    <rect x="790" y="255" width="300" height="8" fill="#1E3A8A"/>    <text x="802" y="254" font-family="sans-serif" font-size="12.5" font-weight="700" fill="#FFFFFF">movimentacoes</text>
+    <rect x="798" y="270" width="38" height="14" rx="3" fill="#DBEAFE"/>    <text x="817" y="280" font-family="sans-serif" font-size="8.5" font-weight="700" fill="#1E3A8A" text-anchor="middle">PK</text>
+    <text x="842" y="281" font-family="sans-serif" font-size="11" font-weight="700" fill="#0F172A">id</text>    <text x="1080" y="281" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">VARCHAR(36)</text>
+    <text x="842" y="301" font-family="sans-serif" font-size="11" font-weight="400" fill="#0F172A">tipo</text>    <text x="1080" y="301" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">VARCHAR(30)</text>
+    <rect x="798" y="310" width="38" height="14" rx="3" fill="#F1F5F9"/>    <text x="817" y="320" font-family="sans-serif" font-size="8.5" font-weight="700" fill="#475569" text-anchor="middle">CHK</text>
+    <text x="842" y="321" font-family="sans-serif" font-size="11" font-weight="400" fill="#0F172A">quantidade</text>    <text x="1080" y="321" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">INTEGER &gt; 0</text>
+    <text x="842" y="341" font-family="sans-serif" font-size="11" font-weight="400" fill="#0F172A">instante</text>    <text x="1080" y="341" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">TIMESTAMP</text>
+  </g>
+  <g id="table-resgates">    <rect x="790" y="430" width="300" height="180" rx="5" ry="5" fill="#FFFFFF" stroke="#1E293B" stroke-width="1.4"/>    <rect x="790" y="430" width="300" height="28" rx="5" ry="5" fill="#1E3A8A"/>    <rect x="790" y="450" width="300" height="8" fill="#1E3A8A"/>    <text x="802" y="449" font-family="sans-serif" font-size="12.5" font-weight="700" fill="#FFFFFF">resgates</text>
+    <rect x="798" y="465" width="38" height="14" rx="3" fill="#DBEAFE"/>    <text x="817" y="475" font-family="sans-serif" font-size="8.5" font-weight="700" fill="#1E3A8A" text-anchor="middle">PK</text>
+    <text x="842" y="476" font-family="sans-serif" font-size="11" font-weight="700" fill="#0F172A">id</text>    <text x="1080" y="476" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">VARCHAR(36)</text>
+    <rect x="798" y="485" width="38" height="14" rx="3" fill="#FEF3C7"/>    <text x="817" y="495" font-family="sans-serif" font-size="8.5" font-weight="700" fill="#92400E" text-anchor="middle">FK</text>
+    <text x="842" y="496" font-family="sans-serif" font-size="11" font-weight="400" fill="#0F172A">aluno_id</text>    <text x="1080" y="496" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">VARCHAR(36)</text>
+    <rect x="798" y="505" width="38" height="14" rx="3" fill="#FEF3C7"/>    <text x="817" y="515" font-family="sans-serif" font-size="8.5" font-weight="700" fill="#92400E" text-anchor="middle">FK</text>
+    <text x="842" y="516" font-family="sans-serif" font-size="11" font-weight="400" fill="#0F172A">vantagem_id</text>    <text x="1080" y="516" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">VARCHAR(36)</text>
+    <rect x="798" y="525" width="38" height="14" rx="3" fill="#FEF3C7"/>    <text x="817" y="535" font-family="sans-serif" font-size="8.5" font-weight="700" fill="#92400E" text-anchor="middle">FK,UK</text>
+    <text x="842" y="536" font-family="sans-serif" font-size="11" font-weight="400" fill="#0F172A">debito_movimentacao_id</text>    <text x="1080" y="536" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">VARCHAR(36)</text>
+    <text x="842" y="556" font-family="sans-serif" font-size="11" font-weight="400" fill="#0F172A">instante</text>    <text x="1080" y="556" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">TIMESTAMP</text>
+    <text x="842" y="576" font-family="sans-serif" font-size="11" font-weight="400" fill="#0F172A">custo_aplicado</text>    <text x="1080" y="576" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">INTEGER</text>
+    <text x="842" y="596" font-family="sans-serif" font-size="11" font-weight="400" fill="#0F172A">status</text>    <text x="1080" y="596" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">VARCHAR(20)</text>
+  </g>
+  <g id="table-vantagens">    <rect x="790" y="660" width="300" height="200" rx="5" ry="5" fill="#FFFFFF" stroke="#1E293B" stroke-width="1.4"/>    <rect x="790" y="660" width="300" height="28" rx="5" ry="5" fill="#1E3A8A"/>    <rect x="790" y="680" width="300" height="8" fill="#1E3A8A"/>    <text x="802" y="679" font-family="sans-serif" font-size="12.5" font-weight="700" fill="#FFFFFF">vantagens</text>
+    <rect x="798" y="695" width="38" height="14" rx="3" fill="#DBEAFE"/>    <text x="817" y="705" font-family="sans-serif" font-size="8.5" font-weight="700" fill="#1E3A8A" text-anchor="middle">PK</text>
+    <text x="842" y="706" font-family="sans-serif" font-size="11" font-weight="700" fill="#0F172A">id</text>    <text x="1080" y="706" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">VARCHAR(36)</text>
+    <rect x="798" y="715" width="38" height="14" rx="3" fill="#FEF3C7"/>    <text x="817" y="725" font-family="sans-serif" font-size="8.5" font-weight="700" fill="#92400E" text-anchor="middle">FK</text>
+    <text x="842" y="726" font-family="sans-serif" font-size="11" font-weight="400" fill="#0F172A">empresa_id</text>    <text x="1080" y="726" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">VARCHAR(36)</text>
+    <text x="842" y="746" font-family="sans-serif" font-size="11" font-weight="400" fill="#0F172A">titulo</text>    <text x="1080" y="746" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">VARCHAR(150)</text>
+    <text x="842" y="766" font-family="sans-serif" font-size="11" font-weight="400" fill="#0F172A">descricao</text>    <text x="1080" y="766" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">TEXT</text>
+    <text x="842" y="786" font-family="sans-serif" font-size="11" font-weight="400" fill="#0F172A">fotografia_uri</text>    <text x="1080" y="786" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">VARCHAR(500)</text>
+    <rect x="798" y="795" width="38" height="14" rx="3" fill="#F1F5F9"/>    <text x="817" y="805" font-family="sans-serif" font-size="8.5" font-weight="700" fill="#475569" text-anchor="middle">CHK</text>
+    <text x="842" y="806" font-family="sans-serif" font-size="11" font-weight="400" fill="#0F172A">custo_moedas</text>    <text x="1080" y="806" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">INTEGER &gt; 0</text>
+    <text x="842" y="826" font-family="sans-serif" font-size="11" font-weight="400" fill="#0F172A">dados_oferta</text>    <text x="1080" y="826" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">VARCHAR(255)</text>
+    <text x="842" y="846" font-family="sans-serif" font-size="11" font-weight="400" fill="#0F172A">ativa</text>    <text x="1080" y="846" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">BOOLEAN</text>
+  </g>
+  <g id="table-transferencias">    <rect x="1190" y="40" width="310" height="120" rx="5" ry="5" fill="#FFFFFF" stroke="#1E293B" stroke-width="1.4"/>    <rect x="1190" y="40" width="310" height="28" rx="5" ry="5" fill="#1E3A8A"/>    <rect x="1190" y="60" width="310" height="8" fill="#1E3A8A"/>    <text x="1202" y="59" font-family="sans-serif" font-size="12.5" font-weight="700" fill="#FFFFFF">transferencias</text>
+    <rect x="1198" y="75" width="38" height="14" rx="3" fill="#DBEAFE"/>    <text x="1217" y="85" font-family="sans-serif" font-size="8.5" font-weight="700" fill="#1E3A8A" text-anchor="middle">PK,FK</text>
+    <text x="1242" y="86" font-family="sans-serif" font-size="11" font-weight="700" fill="#0F172A">movimentacao_id</text>    <text x="1490" y="86" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">VARCHAR(36)</text>
+    <rect x="1198" y="95" width="38" height="14" rx="3" fill="#FEF3C7"/>    <text x="1217" y="105" font-family="sans-serif" font-size="8.5" font-weight="700" fill="#92400E" text-anchor="middle">FK</text>
+    <text x="1242" y="106" font-family="sans-serif" font-size="11" font-weight="400" fill="#0F172A">conta_origem_id</text>    <text x="1490" y="106" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">VARCHAR(36)</text>
+    <rect x="1198" y="115" width="38" height="14" rx="3" fill="#FEF3C7"/>    <text x="1217" y="125" font-family="sans-serif" font-size="8.5" font-weight="700" fill="#92400E" text-anchor="middle">FK</text>
+    <text x="1242" y="126" font-family="sans-serif" font-size="11" font-weight="400" fill="#0F172A">conta_destino_id</text>    <text x="1490" y="126" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">VARCHAR(36)</text>
+    <text x="1242" y="146" font-family="sans-serif" font-size="11" font-weight="400" fill="#0F172A">motivo</text>    <text x="1490" y="146" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">TEXT NOT NULL</text>
+  </g>
+  <g id="table-creditos">    <rect x="1190" y="220" width="310" height="140" rx="5" ry="5" fill="#FFFFFF" stroke="#1E293B" stroke-width="1.4"/>    <rect x="1190" y="220" width="310" height="28" rx="5" ry="5" fill="#1E3A8A"/>    <rect x="1190" y="240" width="310" height="8" fill="#1E3A8A"/>    <text x="1202" y="239" font-family="sans-serif" font-size="12.5" font-weight="700" fill="#FFFFFF">creditos_semestrais</text>
+    <rect x="1198" y="255" width="38" height="14" rx="3" fill="#DBEAFE"/>    <text x="1217" y="265" font-family="sans-serif" font-size="8.5" font-weight="700" fill="#1E3A8A" text-anchor="middle">PK,FK</text>
+    <text x="1242" y="266" font-family="sans-serif" font-size="11" font-weight="700" fill="#0F172A">movimentacao_id</text>    <text x="1490" y="266" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">VARCHAR(36)</text>
+    <rect x="1198" y="275" width="38" height="14" rx="3" fill="#FEF3C7"/>    <text x="1217" y="285" font-family="sans-serif" font-size="8.5" font-weight="700" fill="#92400E" text-anchor="middle">FK</text>
+    <text x="1242" y="286" font-family="sans-serif" font-size="11" font-weight="400" fill="#0F172A">conta_destino_id</text>    <text x="1490" y="286" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">VARCHAR(36)</text>
+    <rect x="1198" y="295" width="38" height="14" rx="3" fill="#FEF3C7"/>    <text x="1217" y="305" font-family="sans-serif" font-size="8.5" font-weight="700" fill="#92400E" text-anchor="middle">FK</text>
+    <text x="1242" y="306" font-family="sans-serif" font-size="11" font-weight="400" fill="#0F172A">professor_id</text>    <text x="1490" y="306" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">VARCHAR(36)</text>
+    <rect x="1198" y="315" width="38" height="14" rx="3" fill="#F1F5F9"/>    <text x="1217" y="325" font-family="sans-serif" font-size="8.5" font-weight="700" fill="#475569" text-anchor="middle">UK</text>
+    <text x="1242" y="326" font-family="sans-serif" font-size="11" font-weight="400" fill="#0F172A">periodo</text>    <text x="1490" y="326" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">VARCHAR(10)</text>
+    <text x="1242" y="346" font-family="sans-serif" font-size="11" font-weight="400" fill="#0F172A">quantidade_creditada</text>    <text x="1490" y="346" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">INT = 1000</text>
+  </g>
+  <g id="table-debitos">    <rect x="1190" y="420" width="310" height="80" rx="5" ry="5" fill="#FFFFFF" stroke="#1E293B" stroke-width="1.4"/>    <rect x="1190" y="420" width="310" height="28" rx="5" ry="5" fill="#1E3A8A"/>    <rect x="1190" y="440" width="310" height="8" fill="#1E3A8A"/>    <text x="1202" y="439" font-family="sans-serif" font-size="12.5" font-weight="700" fill="#FFFFFF">debitos_resgate</text>
+    <rect x="1198" y="455" width="38" height="14" rx="3" fill="#DBEAFE"/>    <text x="1217" y="465" font-family="sans-serif" font-size="8.5" font-weight="700" fill="#1E3A8A" text-anchor="middle">PK,FK</text>
+    <text x="1242" y="466" font-family="sans-serif" font-size="11" font-weight="700" fill="#0F172A">movimentacao_id</text>    <text x="1490" y="466" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">VARCHAR(36)</text>
+    <rect x="1198" y="475" width="38" height="14" rx="3" fill="#FEF3C7"/>    <text x="1217" y="485" font-family="sans-serif" font-size="8.5" font-weight="700" fill="#92400E" text-anchor="middle">FK</text>
+    <text x="1242" y="486" font-family="sans-serif" font-size="11" font-weight="400" fill="#0F172A">conta_origem_id</text>    <text x="1490" y="486" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">VARCHAR(36)</text>
+  </g>
+  <g id="table-cupons">    <rect x="1190" y="580" width="310" height="120" rx="5" ry="5" fill="#FFFFFF" stroke="#1E293B" stroke-width="1.4"/>    <rect x="1190" y="580" width="310" height="28" rx="5" ry="5" fill="#1E3A8A"/>    <rect x="1190" y="600" width="310" height="8" fill="#1E3A8A"/>    <text x="1202" y="599" font-family="sans-serif" font-size="12.5" font-weight="700" fill="#FFFFFF">cupons</text>
+    <rect x="1198" y="615" width="38" height="14" rx="3" fill="#DBEAFE"/>    <text x="1217" y="625" font-family="sans-serif" font-size="8.5" font-weight="700" fill="#1E3A8A" text-anchor="middle">PK</text>
+    <text x="1242" y="626" font-family="sans-serif" font-size="11" font-weight="700" fill="#0F172A">id</text>    <text x="1490" y="626" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">VARCHAR(36)</text>
+    <rect x="1198" y="635" width="38" height="14" rx="3" fill="#FEF3C7"/>    <text x="1217" y="645" font-family="sans-serif" font-size="8.5" font-weight="700" fill="#92400E" text-anchor="middle">FK,UK</text>
+    <text x="1242" y="646" font-family="sans-serif" font-size="11" font-weight="400" fill="#0F172A">resgate_id</text>    <text x="1490" y="646" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">VARCHAR(36)</text>
+    <rect x="1198" y="655" width="38" height="14" rx="3" fill="#F1F5F9"/>    <text x="1217" y="665" font-family="sans-serif" font-size="8.5" font-weight="700" fill="#475569" text-anchor="middle">UK</text>
+    <text x="1242" y="666" font-family="sans-serif" font-size="11" font-weight="400" fill="#0F172A">codigo_conferencia</text>    <text x="1490" y="666" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">VARCHAR(40)</text>
+    <text x="1242" y="686" font-family="sans-serif" font-size="11" font-weight="400" fill="#0F172A">instante_geracao</text>    <text x="1490" y="686" font-family="monospace" font-size="10" fill="#475569" text-anchor="end">TIMESTAMP</text>
+  </g>
+</svg>

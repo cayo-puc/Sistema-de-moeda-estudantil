@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sistema de Moeda Estudantil — Lab03S02 (MVC + ORM/DAO)</title>
+  <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="container topbar-inner">
+      <div class="brand">
+        <div class="brand-badge">PUC Minas • Lab03S02</div>
+        <h1>Sistema de Moeda Estudantil</h1>
+        <p>Arquitetura MVC • Persistência Relacional com ORM &amp; Padrão DAO • CRUDs de Aluno e Empresa Parceira</p>
+      </div>
+      <div class="stats-bar">
+        <div class="stat-pill">
+          <span class="stat-label">Alunos</span>
+          <strong id="stat-alunos">0</strong>
+        </div>
+        <div class="stat-pill">
+          <span class="stat-label">Empresas Parceiras</span>
+          <strong id="stat-empresas">0</strong>
+        </div>
+        <div class="stat-pill">
+          <span class="stat-label">Instituições</span>
+          <strong id="stat-instituicoes">0</strong>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="container main-content">
+    <!-- Navegação por Abas -->
+    <nav class="tabs" role="tablist">
+      <button class="tab-btn active" data-tab="tab-alunos" role="tab">
+        🎓 CRUD de Alunos (HU-01)
+      </button>
+      <button class="tab-btn" data-tab="tab-empresas" role="tab">
+        🏢 CRUD de Empresas Parceiras (HU-03)
+      </button>
+      <button class="tab-btn" data-tab="tab-arquitetura" role="tab">
+        🗄️ Modelo ER &amp; Estratégia ORM/DAO
+      </button>
+    </nav>
+
+    <!-- Notificação / Alerta Global -->
+    <div id="alert-box" class="alert hidden" role="alert"></div>
+
+    <!-- =================================================================== -->
+    <!-- ABA 1: CRUD DE ALUNOS                                               -->
+    <!-- =================================================================== -->
+    <section id="tab-alunos" class="tab-panel active">
+      <div class="grid-layout">
+        <!-- Formulário de Cadastro / Edição de Aluno -->
+        <div class="card form-card">
+          <div class="card-header">
+            <h2 id="form-aluno-titulo">Novo Cadastro de Aluno</h2>
+            <span class="badge badge-blue" id="form-aluno-modo">Modo: Criação (POST)</span>
+          </div>
+          <p class="card-subtitle">
+            Preencha os dados pessoais e acadêmicos. A instituição e o curso pertencem ao catálogo pré-cadastrado (RF01).
+          </p>
+
+          <form id="form-aluno" novalidate>
+            <input type="hidden" id="aluno-id" />
+
+            <div class="form-group">
+              <label for="aluno-nome">Nome Completo *</label>
+              <input type="text" id="aluno-nome" required placeholder="Ex.: Maria Clara Oliveira" />
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="aluno-cpf">CPF *</label>
+                <input type="text" id="aluno-cpf" maxlength="14" required placeholder="000.000.000-00" />
+              </div>
+              <div class="form-group">
+                <label for="aluno-rg">RG *</label>
+                <input type="text" id="aluno-rg" required placeholder="Ex.: MG-12.345.678" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="aluno-email">E-mail Acadêmico / Pessoal *</label>
+              <input type="email" id="aluno-email" required placeholder="aluno@sga.pucminas.br" />
+            </div>
+
+            <div class="form-group">
+              <label for="aluno-endereco">Endereço Completo *</label>
+              <input type="text" id="aluno-endereco" required placeholder="Rua, número, bairro, cidade - UF" />
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="aluno-instituicao">Instituição de Ensino (Pré-cadastrada) *</label>
+                <select id="aluno-instituicao" required>
+                  <option value="">Selecione a instituição...</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="aluno-curso">Curso *</label>
+                <select id="aluno-curso" required>
+                  <option value="">Selecione primeiro a instituição...</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="aluno-senha" id="label-aluno-senha">Senha de Acesso * (mín. 6 caracteres)</label>
+              <input type="password" id="aluno-senha" placeholder="••••••••" />
+              <small class="help-text" id="help-aluno-senha">
+                Armazenada com hash criptográfico PBKDF2-HMAC-SHA256 no banco de dados (RF04).
+              </small>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary" id="btn-salvar-aluno">
+                Cadastrar Aluno
+              </button>
+              <button type="button" class="btn btn-secondary hidden" id="btn-cancelar-aluno">
+                Cancelar Edição
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Listagem de Alunos -->
+        <div class="card list-card">
+          <div class="card-header">
+            <div>
+              <h2>Alunos Cadastrados</h2>
+              <p class="card-subtitle">Consultando <code>usuarios ⋈ alunos ⋈ contas_moedas</code> via <code>AlunoDAO</code></p>
+            </div>
+            <div class="search-box">
+              <input type="search" id="busca-aluno" placeholder="Buscar por nome, CPF, curso..." />
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Aluno / E-mail</th>
+                  <th>CPF &amp; RG</th>
+                  <th>Instituição &amp; Curso</th>
+                  <th>Endereço</th>
+                  <th>Saldo</th>
+                  <th class="text-right">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="tabela-alunos-body">
+                <tr>
+                  <td colspan="6" class="empty-row">Carregando alunos...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- ABA 2: CRUD DE EMPRESAS PARCEIRAS                                   -->
+    <!-- =================================================================== -->
+    <section id="tab-empresas" class="tab-panel">
+      <div class="grid-layout">
+        <!-- Formulário de Cadastro / Edição de Empresa Parceira -->
+        <div class="card form-card">
+          <div class="card-header">
+            <h2 id="form-empresa-titulo">Nova Empresa Parceira</h2>
+            <span class="badge badge-blue" id="form-empresa-modo">Modo: Criação (POST)</span>
+          </div>
+          <p class="card-subtitle">
+            Cadastre empresas parceiras que oferecerão vantagens e descontos em troca de moedas estudantis (RF03).
+          </p>
+
+          <form id="form-empresa" novalidate>
+            <input type="hidden" id="empresa-id" />
+
+            <div class="form-group">
+              <label for="empresa-nome">Nome Fantasia / Exibição *</label>
+              <input type="text" id="empresa-nome" required placeholder="Ex.: TechBooks Livraria" />
+            </div>
+
+            <div class="form-group">
+              <label for="empresa-nome-legal">Razão Social (Nome Legal) *</label>
+              <input type="text" id="empresa-nome-legal" required placeholder="Ex.: TechBooks Comércio de Livros LTDA" />
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="empresa-identificador">CNPJ / Identificador *</label>
+                <input type="text" id="empresa-identificador" maxlength="18" required placeholder="00.000.000/0001-00" />
+              </div>
+              <div class="form-group">
+                <label for="empresa-email">E-mail Corporativo *</label>
+                <input type="email" id="empresa-email" required placeholder="parceria@empresa.com.br" />
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="empresa-descricao">Descrição da Parceria / Benefícios Oferecidos</label>
+              <textarea id="empresa-descricao" rows="3" placeholder="Ex.: Descontos em livros, cursos, alimentação no campus..."></textarea>
+            </div>
+
+            <div class="form-group">
+              <label for="empresa-senha" id="label-empresa-senha">Senha de Acesso * (mín. 6 caracteres)</label>
+              <input type="password" id="empresa-senha" placeholder="••••••••" />
+              <small class="help-text" id="help-empresa-senha">
+                Armazenada com hash criptográfico PBKDF2-HMAC-SHA256 (RF04).
+              </small>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary" id="btn-salvar-empresa">
+                Cadastrar Empresa Parceira
+              </button>
+              <button type="button" class="btn btn-secondary hidden" id="btn-cancelar-empresa">
+                Cancelar Edição
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Listagem de Empresas Parceiras -->
+        <div class="card list-card">
+          <div class="card-header">
+            <div>
+              <h2>Empresas Parceiras Cadastradas</h2>
+              <p class="card-subtitle">Consultando <code>usuarios ⋈ empresas_parceiras</code> via <code>EmpresaParceiraDAO</code></p>
+            </div>
+            <div class="search-box">
+              <input type="search" id="busca-empresa" placeholder="Buscar por nome, razão social, CNPJ..." />
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Nome Fantasia / E-mail</th>
+                  <th>Razão Social (Nome Legal)</th>
+                  <th>CNPJ / Identificador</th>
+                  <th>Descrição da Parceria</th>
+                  <th class="text-right">Ações</th>
+                </tr>
+              </thead>
+              <tbody id="tabela-empresas-body">
+                <tr>
+                  <td colspan="5" class="empty-row">Carregando empresas parceiras...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- ABA 3: MODELO ER E ESTRATÉGIA DE PERSISTÊNCIA                       -->
+    <!-- =================================================================== -->
+    <section id="tab-arquitetura" class="tab-panel">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2>Estratégia de Acesso ao Banco de Dados (ORM + Padrão DAO)</h2>
+            <p class="card-subtitle">Alinhamento entre o Diagrama de Classes, o Diagrama de Componentes (MVC) e a Camada de Persistência Relacional</p>
+          </div>
+        </div>
+
+        <div class="arch-cards">
+          <div class="arch-box">
+            <h3>1. Mapeamento Objeto-Relacional (ORM)</h3>
+            <p>
+              Utiliza a estratégia <strong>Joined Table Inheritance</strong> (Herança por Tabelas Juntadas):
+              a tabela base <code>usuarios</code> armazena credenciais e metadados comuns (<code>id</code>, <code>nome</code>,
+              <code>email</code>, <code>hash_senha</code>, <code>tipo_usuario</code>), enquanto as tabelas especializadas
+              <code>alunos</code>, <code>professores</code> e <code>empresas_parceiras</code> possuem chave primária/estrangeira
+              <code>usuario_id</code> vinculada com <code>ON DELETE CASCADE</code>.
+            </p>
+          </div>
+          <div class="arch-box">
+            <h3>2. Padrão DAO (Data Access Object)</h3>
+            <p>
+              Implementa a interface genérica <code>GenericDAO[T]</code> (<code>src/dao/base_dao.py</code>) concretizada por
+              <code>AlunoDAO</code>, <code>EmpresaParceiraDAO</code> e <code>CatalogoDAO</code>. Todo acesso SQL fica
+              encapsulado nos DAOs sob transações atômicas (Unit of Work em <code>DatabaseManager.transaction()</code>).
+            </p>
+          </div>
+          <div class="arch-box">
+            <h3>3. Comunicação Front-end ↔ Back-end (REST MVC)</h3>
+            <p>
+              A camada <strong>View</strong> (HTML5/CSS3/JS Fetch API) envia requisições HTTP JSON (<code>GET</code>,
+              <code>POST</code>, <code>PUT</code>, <code>DELETE</code>) para os endpoints <code>/api/alunos</code> e
+              <code>/api/empresas</code>, processados por <code>AlunoController</code> e <code>EmpresaParceiraController</code>.
+            </p>
+          </div>
+        </div>
+
+        <div class="er-diagram-container">
+          <h3>Diagrama Entidade-Relacionamento (MER — Lab03S02)</h3>
+          <img src="/modelo-er.svg" alt="Modelo Entidade-Relacionamento do Sistema de Moeda Estudantil" class="er-svg-preview" />
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      PUC Minas • Engenharia de Software • Projeto de Software (Lab 03) — Sprint 02 (Lab03S02)
+    </div>
+  </footer>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,174 @@
+@startuml
+left to right direction
+hide circle
+skinparam linetype ortho
+skinparam packageStyle rectangle
+skinparam entity {
+  BackgroundColor #F8FAFC
+  BorderColor #1E293B
+  HeaderBackgroundColor #E2E8F0
+}
+
+title Modelo Entidade-Relacionamento (MER) — Sistema de Moeda Estudantil (Lab03S02)
+
+entity "instituicoes_ensino" as instituicoes {
+  * **id** : VARCHAR(36) <<PK>>
+  --
+  * nome : VARCHAR(150) <<UK>>
+  * sigla : VARCHAR(20)
+  * criado_em : TIMESTAMP
+}
+
+entity "cursos" as cursos {
+  * **id** : VARCHAR(36) <<PK>>
+  --
+  * instituicao_id : VARCHAR(36) <<FK>>
+  * nome : VARCHAR(150)
+}
+
+entity "departamentos" as departamentos {
+  * **id** : VARCHAR(36) <<PK>>
+  --
+  * instituicao_id : VARCHAR(36) <<FK>>
+  * nome : VARCHAR(150)
+}
+
+entity "usuarios" as usuarios {
+  * **id** : VARCHAR(36) <<PK>>
+  --
+  * nome : VARCHAR(150)
+  * email : VARCHAR(150) <<UK>>
+  * hash_senha : VARCHAR(255)
+  * tipo_usuario : VARCHAR(20)
+  * criado_em : TIMESTAMP
+  * atualizado_em : TIMESTAMP
+}
+
+entity "alunos" as alunos {
+  * **usuario_id** : VARCHAR(36) <<PK, FK>>
+  --
+  * cpf : VARCHAR(14) <<UK>>
+  * rg : VARCHAR(20)
+  * endereco : VARCHAR(255)
+  * instituicao_id : VARCHAR(36) <<FK>>
+  * curso_id : VARCHAR(36) <<FK>>
+}
+
+entity "professores" as professores {
+  * **usuario_id** : VARCHAR(36) <<PK, FK>>
+  --
+  * cpf : VARCHAR(14) <<UK>>
+  * instituicao_id : VARCHAR(36) <<FK>>
+  * departamento_id : VARCHAR(36) <<FK>>
+}
+
+entity "empresas_parceiras" as empresas {
+  * **usuario_id** : VARCHAR(36) <<PK, FK>>
+  --
+  * nome_legal : VARCHAR(180)
+  * identificador : VARCHAR(20) <<UK>>
+  * descricao : TEXT
+}
+
+entity "contas_moedas" as contas {
+  * **id** : VARCHAR(36) <<PK>>
+  --
+  * usuario_id : VARCHAR(36) <<FK, UK>>
+  * saldo_atual : INTEGER <<CHECK >= 0>>
+  * atualizado_em : TIMESTAMP
+}
+
+entity "movimentacoes" as movimentacoes {
+  * **id** : VARCHAR(36) <<PK>>
+  --
+  * tipo : VARCHAR(30)
+  * quantidade : INTEGER <<CHECK > 0>>
+  * instante : TIMESTAMP
+}
+
+entity "transferencias" as transferencias {
+  * **movimentacao_id** : VARCHAR(36) <<PK, FK>>
+  --
+  * conta_origem_id : VARCHAR(36) <<FK>>
+  * conta_destino_id : VARCHAR(36) <<FK>>
+  * motivo : TEXT
+}
+
+entity "creditos_semestrais" as creditos {
+  * **movimentacao_id** : VARCHAR(36) <<PK, FK>>
+  --
+  * conta_destino_id : VARCHAR(36) <<FK>>
+  * professor_id : VARCHAR(36) <<FK>>
+  * periodo : VARCHAR(10) <<UK(professor_id, periodo)>>
+  * quantidade_creditada : INTEGER
+}
+
+entity "debitos_resgate" as debitos {
+  * **movimentacao_id** : VARCHAR(36) <<PK, FK>>
+  --
+  * conta_origem_id : VARCHAR(36) <<FK>>
+}
+
+entity "vantagens" as vantagens {
+  * **id** : VARCHAR(36) <<PK>>
+  --
+  * empresa_id : VARCHAR(36) <<FK>>
+  * titulo : VARCHAR(150)
+  * descricao : TEXT
+  * fotografia_uri : VARCHAR(500)
+  * custo_moedas : INTEGER <<CHECK > 0>>
+  * dados_oferta : VARCHAR(255)
+  * ativa : BOOLEAN
+}
+
+entity "resgates" as resgates {
+  * **id** : VARCHAR(36) <<PK>>
+  --
+  * aluno_id : VARCHAR(36) <<FK>>
+  * vantagem_id : VARCHAR(36) <<FK>>
+  * debito_movimentacao_id : VARCHAR(36) <<FK, UK>>
+  * instante : TIMESTAMP
+  * custo_aplicado : INTEGER
+  * status : VARCHAR(20)
+}
+
+entity "cupons" as cupons {
+  * **id** : VARCHAR(36) <<PK>>
+  --
+  * resgate_id : VARCHAR(36) <<FK, UK>>
+  * codigo_conferencia : VARCHAR(40) <<UK>>
+  * instante_geracao : TIMESTAMP
+}
+
+' Relacionamentos (Notação Pé de Galinha / IE)
+instituicoes ||--o{ cursos : "oferece"
+instituicoes ||--o{ departamentos : "possui"
+instituicoes ||--o{ alunos : "vincula"
+instituicoes ||--o{ professores : "vincula"
+cursos ||--o{ alunos : "cursa"
+departamentos ||--o{ professores : "lota"
+
+usuarios ||--o| alunos : "especializa (JOINED)"
+usuarios ||--o| professores : "especializa (JOINED)"
+usuarios ||--o| empresas : "especializa (JOINED)"
+
+usuarios ||--o| contas : "titular (Aluno/Prof)"
+
+movimentacoes ||--o| transferencias : "é uma"
+movimentacoes ||--o| creditos : "é um"
+movimentacoes ||--o| debitos : "é um"
+
+contas ||--o{ transferencias : "debita origem"
+contas ||--o{ transferencias : "credita destino"
+contas ||--o{ creditos : "credita"
+professores ||--o{ creditos : "recebe"
+contas ||--o{ debitos : "debita"
+
+empresas ||--o{ vantagens : "ofertante"
+alunos ||--o{ resgates : "realiza"
+vantagens ||--o{ resgates : "selecionada"
+debitos ||--|| resgates : "origina"
+resgates ||--|| cupons : "emite"
+
+@enduml
+
