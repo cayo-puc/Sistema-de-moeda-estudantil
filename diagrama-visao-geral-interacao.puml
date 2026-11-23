@@ -1,0 +1,41 @@
+@startuml
+title Diagrama de Visão Geral de Interação (Interaction Overview — Lab04S01)
+
+start
+:Usuário acessa Aplicação Web (View);
+
+partition "Ref: SD-01 Autenticação (HU-05)" {
+  :Enviar credenciais (POST /api/auth/login);
+  if (Token válido?) then (Não)
+    :Exibir erro 401 e permanecer na tela de login;
+    stop
+  else (Sim)
+  endif
+}
+
+if (Perfil do Usuário?) then (PROFESSOR)
+  fork
+    :Ref: SD-02 Distribuir Moedas (HU-07/HU-08);
+    :Debitar professor, creditar aluno e notificar por e-mail;
+  fork again
+    :Solicitar Crédito Semestral +1.000 (HU-06);
+  fork again
+    :Consultar Extrato de Envios e Créditos (HU-09);
+  end fork
+elseif (ALUNO) then (ALUNO)
+  fork
+    :Consultar Extrato de Recebimentos e Resgates (HU-09);
+  fork again
+    :Ref: SD-03 Resgatar Vantagem e Gerar Cupom (HU-10/HU-11);
+    :Debitar saldo, gerar código único e enviar e-mails (Aluno + Empresa);
+  end fork
+else (EMPRESA)
+  fork
+    :Gerenciar Vantagens: Criar / Editar / Remover (HU-04);
+  fork again
+    :Conferir Cupons Resgatados (HU-11);
+  end fork
+endif
+
+stop
+@enduml

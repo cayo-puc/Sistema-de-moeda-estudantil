@@ -197,9 +197,23 @@ CREATE TABLE IF NOT EXISTS cupons (
         ON DELETE CASCADE
 );
 
+-- 5. Registro de Notificações por E-mail (Auditoria e Caixa de Saída)
+CREATE TABLE IF NOT EXISTS notificacoes_email (
+    id VARCHAR(36) PRIMARY KEY,
+    destinatario_email VARCHAR(150) NOT NULL,
+    destinatario_nome VARCHAR(150) NOT NULL DEFAULT '',
+    assunto VARCHAR(200) NOT NULL,
+    corpo TEXT NOT NULL,
+    tipo VARCHAR(40) NOT NULL,
+    referencia_id VARCHAR(36),
+    enviado_smtp BOOLEAN NOT NULL DEFAULT 0,
+    criado_em TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Índices para Otimização de Consultas nos DAOs
 CREATE INDEX IF NOT EXISTS idx_alunos_instituicao ON alunos (instituicao_id);
 CREATE INDEX IF NOT EXISTS idx_alunos_curso ON alunos (curso_id);
 CREATE INDEX IF NOT EXISTS idx_vantagens_empresa ON vantagens (empresa_id);
 CREATE INDEX IF NOT EXISTS idx_resgates_aluno ON resgates (aluno_id);
+CREATE INDEX IF NOT EXISTS idx_notificacoes_email_dest ON notificacoes_email (destinatario_email);
 

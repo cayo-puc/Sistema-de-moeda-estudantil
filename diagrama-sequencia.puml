@@ -1,0 +1,98 @@
+@startuml
+title Diagramas de Sequência — Sistema de Moeda Estudantil (Lab04S01)
+
+' =============================================================================
+' Fluxo 1: Autenticação (HU-05)
+' =============================================================================
+group SD-01: Autenticação de Usuário (HU-05)
+  actor Usuario
+  participant "View (index.html / app.js)" as View
+  participant "AuthController" as AuthCtrl
+  participant "AuthService" as AuthSvc
+  database "SQLite (usuarios)" as DB
+
+  Usuario -> View : Informa email e senha
+  View -> AuthCtrl : POST /api/auth/login {email, senha}
+  AuthCtrl -> AuthSvc : autenticar(email, senha)
+  AuthSvc -> DB : SELECT id, hash_senha, tipo_usuario FROM usuarios
+  DB --> AuthSvc : Registro do usuário
+  AuthSvc -> AuthSvc : verificar_senha(PBKDF2-HMAC-SHA256)
+  alt Credenciais válidas
+    AuthSvc -> AuthSvc : _gerar_token(HMAC-SHA256)
+    AuthSvc --> AuthCtrl : {token, usuario}
+    AuthCtrl --> View : 200 OK {token, usuario}
+    View --> Usuario : Exibe painel do perfil e saldo
+  else Credenciais inválidas
+    AuthSvc --> AuthCtrl : None
+    AuthCtrl --> View : 401 Unauthorized
+    View --> Usuario : Exibe mensagem de erro
+  end
+end
+
+' =============================================================================
+' Fluxo 2: Envio de Moedas pelo Professor (HU-07, HU-08)
+' =============================================================================
+group SD-02: Envio de Moedas e Notificação ao Aluno (HU-07 / HU-08)
+  actor Professor
+  participant "View" as View2
+  participant "MeritoController" as MeritCtrl
+  participant "MovimentacaoDAO" as MovDAO
+  participant "NotificacaoService" as NotifSvc
+  database "SQLite" as DB2
+  cloud "SMTP / Caixa de Saída" as Mail
+
+  Professor -> View2 : Seleciona aluno, quantidade e motivo
+  View2 -> MeritCtrl : POST /api/merito/transferir (Bearer Token)
+  MeritCtrl -> MeritCtrl : Valida perfil PROFESSOR e campos obrigatórios
+  MeritCtrl -> MovDAO : transferir_moedas(profId, alunoId, qtd, motivo)
+  MovDAO -> DB2 : BEGIN TRANSACTION
+  MovDAO -> DB2 : UPDATE contas_moedas SET saldo_atual = saldo_atual - qtd WHERE saldo_atual >= qtd
+  alt Saldo suficiente
+    MovDAO -> DB2 : UPDATE contas_moedas SET saldo_atual = saldo_atual + qtd (aluno)
+    MovDAO -> DB2 : INSERT movimentacoes + transferencias
+    MovDAO -> DB2 : COMMIT
+    MovDAO --> MeritCtrl : Dados da transferência
+    MeritCtrl -> NotifSvc : notificar_recebimento_moedas(...)
+    NotifSvc -> DB2 : INSERT notificacoes_email
+    NotifSvc -> Mail : Envia e-mail ao aluno (se SMTP configurado)
+    MeritCtrl --> View2 : 201 Created
+    View2 --> Professor : Confirma envio e atualiza saldo/extrato
+  else Saldo insuficiente
+    MovDAO -> DB2 : ROLLBACK
+    MovDAO --> MeritCtrl : SaldoInsuficienteError
+    MeritCtrl --> View2 : 400 Bad Request
+    View2 --> Professor : Informa saldo insuficiente
+  end
+end
+
+' =============================================================================
+' Fluxo 3: Resgate de Vantagem e Geração de Cupom (HU-10, HU-11)
+' =============================================================================
+group SD-03: Resgate de Vantagem e Emissão de Cupom (HU-10 / HU-11)
+  actor Aluno
+  participant "View" as View3
+  participant "VantagemController" as VantCtrl
+  participant "ResgateDAO" as ResgDAO
+  participant "NotificacaoService" as NotifSvc3
+  database "SQLite" as DB3
+
+  Aluno -> View3 : Clica em "Resgatar" na vantagem
+  View3 -> VantCtrl : POST /api/vantagens/{id}/resgatar (Bearer Token)
+  VantCtrl -> ResgDAO : resgatar_vantagem(alunoId, vantagemId)
+  ResgDAO -> DB3 : BEGIN TRANSACTION
+  ResgDAO -> DB3 : Verifica vantagem ativa e debita saldo do aluno
+  alt Saldo suficiente
+    ResgDAO -> DB3 : INSERT movimentacoes + debitos_resgate + resgates + cupons(codigo)
+    ResgDAO -> DB3 : COMMIT
+    ResgDAO --> VantCtrl : Resgate + codigoConferencia
+    VantCtrl -> NotifSvc3 : notificar_resgate_vantagem(...)
+    NotifSvc3 -> DB3 : Registra e-mail do Cupom (Aluno) + Conferência (Empresa)
+    VantCtrl --> View3 : 201 Created {resgate, saldoAlunoAtual}
+    View3 --> Aluno : Exibe cupom com código de conferência
+  else Saldo insuficiente
+    ResgDAO -> DB3 : ROLLBACK
+    ResgDAO --> VantCtrl : SaldoInsuficienteError
+    VantCtrl --> View3 : 400 Bad Request
+  end
+end
+@enduml

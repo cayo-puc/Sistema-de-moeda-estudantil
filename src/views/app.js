@@ -1,502 +1,708 @@
-/**
- * Camada de Apresentação / Front-end (View MVC) — Lab03S02.
- * Realiza a comunicação assíncrona via Fetch API com os endpoints REST do Back-end
- * (`/api/alunos`, `/api/empresas`, `/api/instituicoes`, `/api/cursos`).
- */
+// Camada View (MVC) — Sistema de Moeda Estudantil (Release 2: Lab04S01 / Lab04S02)
 
-let estado = {
+const API_BASE = window.MOEDA_API_BASE || "";
+
+const state = {
+  token: localStorage.getItem("moeda_token") || null,
+  usuario: null,
   instituicoes: [],
   cursos: [],
   alunos: [],
   empresas: [],
+  vantagens: [],
+  resgates: [],
+  notificacoes: [],
 };
 
-document.addEventListener("DOMContentLoaded", async () => {
-  configurarAbas();
-  configurarMascaras();
-  configurarEventosAlunos();
-  configurarEventosEmpresas();
-
-  await carregarCatalogoAcademico();
-  await Promise.all([carregarAlunos(), carregarEmpresas()]);
-});
-
-function configurarAbas() {
-  const botoes = document.querySelectorAll(".tab-btn");
-  const paineis = document.querySelectorAll(".tab-panel");
-
-  botoes.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      botoes.forEach((b) => b.classList.remove("active"));
-      paineis.forEach((p) => p.classList.remove("active"));
-
-      btn.classList.add("active");
-      const alvo = document.getElementById(btn.dataset.tab);
-      if (alvo) alvo.classList.add("active");
-    });
-  });
+function apiUrl(path) {
+  return `${API_BASE}${path}`;
 }
 
-function exibirAlerta(mensagem, tipo = "success", detalhes = []) {
+function authHeaders(extra = {}) {
+  const headers = { ...extra };
+  if (state.token) {
+    headers["Authorization"] = `Bearer ${state.token}`;
+  }
+  return headers;
+}
+
+async function apiFetch(path, options = {}) {
+  const res = await fetch(apiUrl(path), {
+    ...options,
+    headers: authHeaders(options.headers || {}),
+  });
+  const data = await res.json();
+  return { status: res.status, data };
+}
+
+function showAlert(message, type = "success") {
   const box = document.getElementById("alert-box");
-  box.className = `alert alert-${tipo}`;
-  let html = `<strong>${escapeHtml(mensagem)}</strong>`;
-  if (Array.isArray(detalhes) && detalhes.length > 0) {
-    html += `<ul style="margin-top:6px;margin-left:18px;">${detalhes
-      .map((d) => `<li>${escapeHtml(d)}</li>`)
-      .join("")}</ul>`;
-  }
-  box.innerHTML = html;
+  box.textContent = message;
+  box.className = `alert alert-${type}`;
   box.classList.remove("hidden");
-
-  window.clearTimeout(box._timer);
-  box._timer = window.setTimeout(() => {
-    box.classList.add("hidden");
-  }, 6000);
+  clearTimeout(showAlert._timer);
+  showAlert._timer = setTimeout(() => box.classList.add("hidden"), 6000);
 }
 
-function escapeHtml(valor) {
-  return String(valor ?? "")
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
+function escapeHtml(text) {
+  const div = document.createElement("div");
+  div.textContent = text == null ? "" : String(text);
+  return div.innerHTML;
 }
 
-function formatarCpf(v) {
-  const d = v.replace(/\D/g, "").slice(0, 11);
-  if (d.length <= 3) return d;
-  if (d.length <= 6) return `${d.slice(0, 3)}.${d.slice(3)}`;
-  if (d.length <= 9) return `${d.slice(0, 3)}.${d.slice(3, 6)}.${d.slice(6)}`;
-  return `${d.slice(0, 3)}.${d.slice(3, 6)}.${d.slice(6, 9)}-${d.slice(9, 11)}`;
+// =============================================================================
+// Autenticação (HU-05)
+// =============================================================================
+function renderAuthBar() {
+  const loggedOut = document.getElementById("auth-logged-out");
+  const loggedIn = document.getElementById("auth-logged-in");
+
+  if (!state.usuario) {
+    loggedOut.classList.remove("hidden");
+    loggedIn.classList.add("hidden");
+    return;
+  }
+
+  loggedOut.classList.add("hidden");
+  loggedIn.classList.remove("hidden");
+  document.getElementById("auth-user-role").textContent = state.usuario.tipoUsuario;
+  document.getElementById("auth-user-name").textContent = state.usuario.nome;
+  document.getElementById("auth-user-email").textContent = state.usuario.email;
+
+  const saldoBox = document.getElementById("auth-saldo-box");
+  if (state.usuario.tipoUsuario === "ALUNO" || state.usuario.tipoUsuario === "PROFESSOR") {
+    saldoBox.classList.remove("hidden");
+    document.getElementById("auth-user-saldo").textContent = state.usuario.saldoMoedas ?? 0;
+  } else {
+    saldoBox.classList.add("hidden");
+  }
 }
 
-function formatarCnpj(v) {
-  const d = v.replace(/\D/g, "").slice(0, 14);
-  if (d.length <= 2) return d;
-  if (d.length <= 5) return `${d.slice(0, 2)}.${d.slice(2)}`;
-  if (d.length <= 8) return `${d.slice(0, 2)}.${d.slice(2, 5)}.${d.slice(5)}`;
-  if (d.length <= 12) return `${d.slice(0, 2)}.${d.slice(2, 5)}.${d.slice(5, 8)}/${d.slice(8)}`;
-  return `${d.slice(0, 2)}.${d.slice(2, 5)}.${d.slice(5, 8)}/${d.slice(8, 12)}-${d.slice(12, 14)}`;
-}
-
-function configurarMascaras() {
-  const inputCpf = document.getElementById("aluno-cpf");
-  inputCpf.addEventListener("input", (e) => {
-    e.target.value = formatarCpf(e.target.value);
-  });
-
-  const inputCnpj = document.getElementById("empresa-identificador");
-  inputCnpj.addEventListener("input", (e) => {
-    e.target.value = formatarCnpj(e.target.value);
-  });
-}
-
-// ============================================================================
-// Catálogo Acadêmico Pré-Cadastrado (Instituições e Cursos)
-// ============================================================================
-async function carregarCatalogoAcademico() {
+async function carregarSessao() {
+  if (!state.token) {
+    state.usuario = null;
+    renderAuthBar();
+    return;
+  }
   try {
-    const [resInst, resCursos] = await Promise.all([
-      fetch("/api/instituicoes"),
-      fetch("/api/cursos"),
-    ]);
-    const jsonInst = await resInst.json();
-    const jsonCursos = await resCursos.json();
+    const { status, data } = await apiFetch("/api/auth/me");
+    if (status === 200 && data.sucesso) {
+      state.usuario = data.dados;
+    } else {
+      state.token = null;
+      state.usuario = null;
+      localStorage.removeItem("moeda_token");
+    }
+  } catch {
+    state.usuario = null;
+  }
+  renderAuthBar();
+}
 
-    estado.instituicoes = jsonInst.dados || [];
-    estado.cursos = jsonCursos.dados || [];
+async function fazerLogin(email, senha) {
+  const { status, data } = await apiFetch("/api/auth/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, senha }),
+  });
+  if (status !== 200 || !data.sucesso) {
+    showAlert(data.erro || "Falha ao autenticar.", "error");
+    return;
+  }
+  state.token = data.dados.token;
+  state.usuario = data.dados.usuario;
+  localStorage.setItem("moeda_token", state.token);
+  renderAuthBar();
+  showAlert(data.mensagem, "success");
+  await Promise.all([carregarExtrato(), carregarVantagens(), carregarResgates(), carregarNotificacoes()]);
+}
 
-    document.getElementById("stat-instituicoes").textContent = estado.instituicoes.length;
+function logout() {
+  state.token = null;
+  state.usuario = null;
+  localStorage.removeItem("moeda_token");
+  renderAuthBar();
+  carregarExtrato();
+  carregarResgates();
+  showAlert("Sessão encerrada.", "success");
+}
 
-    const selectInst = document.getElementById("aluno-instituicao");
-    selectInst.innerHTML =
-      `<option value="">Selecione a instituição...</option>` +
-      estado.instituicoes
-        .map((i) => `<option value="${escapeHtml(i.id)}">${escapeHtml(i.sigla)} — ${escapeHtml(i.nome)}</option>`)
-        .join("");
-
-    selectInst.addEventListener("change", () => {
-      atualizarSelectCursos(selectInst.value, "");
+// =============================================================================
+// Abas
+// =============================================================================
+function initTabs() {
+  const buttons = document.querySelectorAll(".tab-btn");
+  const panels = document.querySelectorAll(".tab-panel");
+  buttons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const target = btn.dataset.tab;
+      buttons.forEach((b) => b.classList.remove("active"));
+      panels.forEach((p) => p.classList.remove("active"));
+      btn.classList.add("active");
+      document.getElementById(target).classList.add("active");
     });
-  } catch (err) {
-    exibirAlerta("Erro ao carregar instituições e cursos pré-cadastrados.", "error");
-  }
-}
-
-function atualizarSelectCursos(instituicaoId, cursoSelecionadoId = "") {
-  const selectCurso = document.getElementById("aluno-curso");
-  if (!instituicaoId) {
-    selectCurso.innerHTML = `<option value="">Selecione primeiro a instituição...</option>`;
-    return;
-  }
-  const filtrados = estado.cursos.filter((c) => c.instituicaoId === instituicaoId);
-  selectCurso.innerHTML =
-    `<option value="">Selecione o curso...</option>` +
-    filtrados
-      .map(
-        (c) =>
-          `<option value="${escapeHtml(c.id)}" ${
-            c.id === cursoSelecionadoId ? "selected" : ""
-          }>${escapeHtml(c.nome)}</option>`
-      )
-      .join("");
-}
-
-// ============================================================================
-// CRUD DE ALUNOS
-// ============================================================================
-async function carregarAlunos() {
-  try {
-    const resp = await fetch("/api/alunos");
-    const json = await resp.json();
-    estado.alunos = json.dados || [];
-    document.getElementById("stat-alunos").textContent = estado.alunos.length;
-    renderizarTabelaAlunos();
-  } catch (err) {
-    exibirAlerta("Não foi possível carregar a lista de alunos.", "error");
-  }
-}
-
-function renderizarTabelaAlunos() {
-  const termo = (document.getElementById("busca-aluno").value || "").toLowerCase().trim();
-  const tbody = document.getElementById("tabela-alunos-body");
-
-  const filtrados = estado.alunos.filter((a) => {
-    if (!termo) return true;
-    return (
-      (a.nome || "").toLowerCase().includes(termo) ||
-      (a.email || "").toLowerCase().includes(termo) ||
-      (a.cpf || "").toLowerCase().includes(termo) ||
-      (a.cursoNome || "").toLowerCase().includes(termo) ||
-      (a.instituicaoSigla || "").toLowerCase().includes(termo)
-    );
   });
+}
 
-  if (filtrados.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="6" class="empty-row">Nenhum aluno encontrado.</td></tr>`;
+// =============================================================================
+// Catálogo Acadêmico, Alunos e Empresas (Lab03S02)
+// =============================================================================
+async function carregarInstituicoes() {
+  const { data } = await apiFetch("/api/instituicoes");
+  state.instituicoes = data.dados || [];
+  document.getElementById("stat-instituicoes").textContent = state.instituicoes.length;
+  const select = document.getElementById("aluno-instituicao");
+  select.innerHTML = `<option value="">Selecione a instituição...</option>`;
+  state.instituicoes.forEach((inst) => {
+    const opt = document.createElement("option");
+    opt.value = inst.id;
+    opt.textContent = `${inst.sigla} — ${inst.nome}`;
+    select.appendChild(opt);
+  });
+}
+
+async function carregarCursosPorInstituicao(instId, selectedCursoId = "") {
+  const selectCurso = document.getElementById("aluno-curso");
+  if (!instId) {
+    selectCurso.innerHTML = `<option value="">Selecione a instituição primeiro...</option>`;
+    selectCurso.disabled = true;
     return;
   }
+  const { data } = await apiFetch(`/api/cursos?instituicaoId=${encodeURIComponent(instId)}`);
+  state.cursos = data.dados || [];
+  selectCurso.disabled = false;
+  selectCurso.innerHTML = `<option value="">Selecione o curso...</option>`;
+  state.cursos.forEach((c) => {
+    const opt = document.createElement("option");
+    opt.value = c.id;
+    opt.textContent = c.nome;
+    if (c.id === selectedCursoId) opt.selected = true;
+    selectCurso.appendChild(opt);
+  });
+}
 
+async function carregarAlunos() {
+  const { data } = await apiFetch("/api/alunos");
+  state.alunos = data.dados || [];
+  document.getElementById("stat-alunos").textContent = state.alunos.length;
+  renderTabelaAlunos();
+  renderSelectAlunosTransferencia();
+}
+
+function renderSelectAlunosTransferencia() {
+  const select = document.getElementById("transf-aluno");
+  const current = select.value;
+  select.innerHTML = `<option value="">Selecione o aluno...</option>`;
+  state.alunos.forEach((a) => {
+    const opt = document.createElement("option");
+    opt.value = a.id;
+    opt.textContent = `${a.nome} (${a.instituicaoSigla || ""} • Saldo: ${a.saldoMoedas} moedas)`;
+    if (a.id === current) opt.selected = true;
+    select.appendChild(opt);
+  });
+}
+
+function renderTabelaAlunos(filtro = "") {
+  const tbody = document.getElementById("tabela-alunos-body");
+  const termo = filtro.trim().toLowerCase();
+  const filtrados = state.alunos.filter(
+    (a) =>
+      !termo ||
+      a.nome.toLowerCase().includes(termo) ||
+      a.email.toLowerCase().includes(termo) ||
+      a.cpf.toLowerCase().includes(termo)
+  );
+  if (!filtrados.length) {
+    tbody.innerHTML = `<tr><td colspan="5" class="empty-row">Nenhum aluno encontrado.</td></tr>`;
+    return;
+  }
   tbody.innerHTML = filtrados
     .map(
       (a) => `
-      <tr>
-        <td>
-          <div class="cell-primary">${escapeHtml(a.nome)}</div>
-          <div class="cell-sub">${escapeHtml(a.email)}</div>
-        </td>
-        <td>
-          <div><strong>CPF:</strong> ${escapeHtml(a.cpf)}</div>
-          <div class="cell-sub"><strong>RG:</strong> ${escapeHtml(a.rg)}</div>
-        </td>
-        <td>
-          <div class="cell-primary">${escapeHtml(a.instituicaoSigla || a.instituicaoNome)}</div>
-          <div class="cell-sub">${escapeHtml(a.cursoNome)}</div>
-        </td>
-        <td>
-          <div class="cell-sub">${escapeHtml(a.endereco)}</div>
-        </td>
-        <td>
-          <span class="badge-coins">🪙 ${Number(a.saldoMoedas || 0)} moedas</span>
-        </td>
-        <td class="text-right">
-          <div class="action-group">
-            <button type="button" class="btn btn-sm btn-edit" onclick="iniciarEdicaoAluno('${escapeHtml(a.id)}')">
-              Editar
-            </button>
-            <button type="button" class="btn btn-sm btn-delete" onclick="excluirAluno('${escapeHtml(a.id)}')">
-              Excluir
-            </button>
-          </div>
-        </td>
-      </tr>
-    `
+    <tr>
+      <td><strong>${escapeHtml(a.nome)}</strong><br><small class="text-muted">${escapeHtml(a.email)}</small></td>
+      <td>${escapeHtml(a.cpf)}<br><small class="text-muted">RG: ${escapeHtml(a.rg)}</small></td>
+      <td><strong>${escapeHtml(a.instituicaoSigla || a.instituicaoNome)}</strong><br><small class="text-muted">${escapeHtml(a.cursoNome)}</small></td>
+      <td><span class="badge badge-blue">${a.saldoMoedas} moedas</span></td>
+      <td class="text-right">
+        <button class="btn btn-sm btn-secondary" onclick="editarAluno('${a.id}')">Editar</button>
+        <button class="btn btn-sm btn-danger" onclick="excluirAluno('${a.id}')">Excluir</button>
+      </td>
+    </tr>`
     )
     .join("");
 }
 
-function configurarEventosAlunos() {
-  const form = document.getElementById("form-aluno");
-  const btnCancelar = document.getElementById("btn-cancelar-aluno");
-  const inputBusca = document.getElementById("busca-aluno");
-
-  inputBusca.addEventListener("input", renderizarTabelaAlunos);
-  btnCancelar.addEventListener("click", resetarFormularioAluno);
-
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const alunoId = document.getElementById("aluno-id").value.trim();
-    const payload = {
-      nome: document.getElementById("aluno-nome").value.trim(),
-      cpf: document.getElementById("aluno-cpf").value.trim(),
-      rg: document.getElementById("aluno-rg").value.trim(),
-      email: document.getElementById("aluno-email").value.trim(),
-      endereco: document.getElementById("aluno-endereco").value.trim(),
-      instituicaoId: document.getElementById("aluno-instituicao").value,
-      cursoId: document.getElementById("aluno-curso").value,
-      senha: document.getElementById("aluno-senha").value,
-    };
-
-    const url = alunoId ? `/api/alunos/${encodeURIComponent(alunoId)}` : "/api/alunos";
-    const metodo = alunoId ? "PUT" : "POST";
-
-    try {
-      const resp = await fetch(url, {
-        method: metodo,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      const json = await resp.json();
-
-      if (!resp.ok || !json.sucesso) {
-        exibirAlerta(json.erro || "Erro ao salvar aluno.", "error", json.detalhes || []);
-        return;
-      }
-
-      exibirAlerta(json.mensagem || "Operação concluída com sucesso!", "success");
-      resetarFormularioAluno();
-      await carregarAlunos();
-    } catch (err) {
-      exibirAlerta("Erro de comunicação com o servidor Back-end.", "error");
-    }
-  });
-}
-
-window.iniciarEdicaoAluno = function (alunoId) {
-  const aluno = estado.alunos.find((a) => a.id === alunoId);
-  if (!aluno) return;
-
-  document.getElementById("aluno-id").value = aluno.id;
-  document.getElementById("aluno-nome").value = aluno.nome;
-  document.getElementById("aluno-cpf").value = aluno.cpf;
-  document.getElementById("aluno-rg").value = aluno.rg;
-  document.getElementById("aluno-email").value = aluno.email;
-  document.getElementById("aluno-endereco").value = aluno.endereco;
-  document.getElementById("aluno-instituicao").value = aluno.instituicaoId;
-  atualizarSelectCursos(aluno.instituicaoId, aluno.cursoId);
+window.editarAluno = async (id) => {
+  const a = state.alunos.find((item) => item.id === id);
+  if (!a) return;
+  document.getElementById("aluno-id").value = a.id;
+  document.getElementById("aluno-nome").value = a.nome;
+  document.getElementById("aluno-cpf").value = a.cpf;
+  document.getElementById("aluno-rg").value = a.rg;
+  document.getElementById("aluno-email").value = a.email;
+  document.getElementById("aluno-endereco").value = a.endereco;
+  document.getElementById("aluno-instituicao").value = a.instituicaoId;
+  await carregarCursosPorInstituicao(a.instituicaoId, a.cursoId);
   document.getElementById("aluno-senha").value = "";
-
+  document.getElementById("aluno-senha").required = false;
   document.getElementById("form-aluno-titulo").textContent = "Editar Aluno";
-  const badgeModo = document.getElementById("form-aluno-modo");
-  badgeModo.textContent = "Modo: Edição (PUT)";
-  badgeModo.className = "badge badge-amber";
-
-  document.getElementById("label-aluno-senha").textContent = "Nova Senha (deixe em branco para manter a atual)";
+  document.getElementById("form-aluno-modo").textContent = "Modo: Edição (PUT)";
   document.getElementById("btn-salvar-aluno").textContent = "Salvar Alterações";
   document.getElementById("btn-cancelar-aluno").classList.remove("hidden");
-  window.scrollTo({ top: 0, behavior: "smooth" });
 };
 
-function resetarFormularioAluno() {
+function resetFormAluno() {
   document.getElementById("form-aluno").reset();
   document.getElementById("aluno-id").value = "";
-  atualizarSelectCursos("", "");
-
+  document.getElementById("aluno-curso").disabled = true;
+  document.getElementById("aluno-senha").required = true;
   document.getElementById("form-aluno-titulo").textContent = "Novo Cadastro de Aluno";
-  const badgeModo = document.getElementById("form-aluno-modo");
-  badgeModo.textContent = "Modo: Criação (POST)";
-  badgeModo.className = "badge badge-blue";
-
-  document.getElementById("label-aluno-senha").textContent = "Senha de Acesso * (mín. 6 caracteres)";
+  document.getElementById("form-aluno-modo").textContent = "Modo: Criação (POST)";
   document.getElementById("btn-salvar-aluno").textContent = "Cadastrar Aluno";
   document.getElementById("btn-cancelar-aluno").classList.add("hidden");
 }
 
-window.excluirAluno = async function (alunoId) {
-  const aluno = estado.alunos.find((a) => a.id === alunoId);
-  const nome = aluno ? aluno.nome : alunoId;
-  if (!window.confirm(`Deseja realmente excluir o aluno "${nome}" e sua conta de moedas?`)) {
-    return;
-  }
-
-  try {
-    const resp = await fetch(`/api/alunos/${encodeURIComponent(alunoId)}`, {
-      method: "DELETE",
-    });
-    const json = await resp.json();
-    if (!resp.ok || !json.sucesso) {
-      exibirAlerta(json.erro || "Não foi possível excluir o aluno.", "error");
-      return;
-    }
-    exibirAlerta(json.mensagem || "Aluno excluído com sucesso.", "success");
-    if (document.getElementById("aluno-id").value === alunoId) {
-      resetarFormularioAluno();
-    }
+window.excluirAluno = async (id) => {
+  if (!confirm("Confirma a exclusão deste aluno?")) return;
+  const { status, data } = await apiFetch(`/api/alunos/${id}`, { method: "DELETE" });
+  if (status === 200) {
+    showAlert(data.mensagem, "success");
     await carregarAlunos();
-  } catch (err) {
-    exibirAlerta("Erro de comunicação ao tentar excluir aluno.", "error");
+  } else {
+    showAlert(data.erro || "Erro ao excluir aluno.", "error");
   }
 };
 
-// ============================================================================
-// CRUD DE EMPRESAS PARCEIRAS
-// ============================================================================
 async function carregarEmpresas() {
-  try {
-    const resp = await fetch("/api/empresas");
-    const json = await resp.json();
-    estado.empresas = json.dados || [];
-    document.getElementById("stat-empresas").textContent = estado.empresas.length;
-    renderizarTabelaEmpresas();
-  } catch (err) {
-    exibirAlerta("Não foi possível carregar a lista de empresas parceiras.", "error");
-  }
+  const { data } = await apiFetch("/api/empresas");
+  state.empresas = data.dados || [];
+  document.getElementById("stat-empresas").textContent = state.empresas.length;
+  renderTabelaEmpresas();
 }
 
-function renderizarTabelaEmpresas() {
-  const termo = (document.getElementById("busca-empresa").value || "").toLowerCase().trim();
+function renderTabelaEmpresas(filtro = "") {
   const tbody = document.getElementById("tabela-empresas-body");
-
-  const filtradas = estado.empresas.filter((e) => {
-    if (!termo) return true;
-    return (
-      (e.nome || "").toLowerCase().includes(termo) ||
-      (e.nomeLegal || "").toLowerCase().includes(termo) ||
-      (e.identificador || "").toLowerCase().includes(termo) ||
-      (e.email || "").toLowerCase().includes(termo)
-    );
-  });
-
-  if (filtradas.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="5" class="empty-row">Nenhuma empresa parceira encontrada.</td></tr>`;
+  const termo = filtro.trim().toLowerCase();
+  const filtradas = state.empresas.filter(
+    (e) =>
+      !termo ||
+      e.nome.toLowerCase().includes(termo) ||
+      e.nomeLegal.toLowerCase().includes(termo) ||
+      e.identificador.toLowerCase().includes(termo)
+  );
+  if (!filtradas.length) {
+    tbody.innerHTML = `<tr><td colspan="5" class="empty-row">Nenhuma empresa encontrada.</td></tr>`;
     return;
   }
-
   tbody.innerHTML = filtradas
     .map(
       (e) => `
-      <tr>
-        <td>
-          <div class="cell-primary">${escapeHtml(e.nome)}</div>
-          <div class="cell-sub">${escapeHtml(e.email)}</div>
-        </td>
-        <td>${escapeHtml(e.nomeLegal)}</td>
-        <td><strong>${escapeHtml(e.identificador)}</strong></td>
-        <td>
-          <div class="cell-sub">${escapeHtml(e.descricao || "—")}</div>
-        </td>
-        <td class="text-right">
-          <div class="action-group">
-            <button type="button" class="btn btn-sm btn-edit" onclick="iniciarEdicaoEmpresa('${escapeHtml(e.id)}')">
-              Editar
-            </button>
-            <button type="button" class="btn btn-sm btn-delete" onclick="excluirEmpresa('${escapeHtml(e.id)}')">
-              Excluir
-            </button>
-          </div>
-        </td>
-      </tr>
-    `
+    <tr>
+      <td><strong>${escapeHtml(e.nome)}</strong><br><small class="text-muted">${escapeHtml(e.email)}</small></td>
+      <td>${escapeHtml(e.nomeLegal)}</td>
+      <td>${escapeHtml(e.identificador)}</td>
+      <td>${escapeHtml(e.descricao || "—")}</td>
+      <td class="text-right">
+        <button class="btn btn-sm btn-secondary" onclick="editarEmpresa('${e.id}')">Editar</button>
+        <button class="btn btn-sm btn-danger" onclick="excluirEmpresa('${e.id}')">Excluir</button>
+      </td>
+    </tr>`
     )
     .join("");
 }
 
-function configurarEventosEmpresas() {
-  const form = document.getElementById("form-empresa");
-  const btnCancelar = document.getElementById("btn-cancelar-empresa");
-  const inputBusca = document.getElementById("busca-empresa");
-
-  inputBusca.addEventListener("input", renderizarTabelaEmpresas);
-  btnCancelar.addEventListener("click", resetarFormularioEmpresa);
-
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const empresaId = document.getElementById("empresa-id").value.trim();
-    const payload = {
-      nome: document.getElementById("empresa-nome").value.trim(),
-      nomeLegal: document.getElementById("empresa-nome-legal").value.trim(),
-      identificador: document.getElementById("empresa-identificador").value.trim(),
-      email: document.getElementById("empresa-email").value.trim(),
-      descricao: document.getElementById("empresa-descricao").value.trim(),
-      senha: document.getElementById("empresa-senha").value,
-    };
-
-    const url = empresaId ? `/api/empresas/${encodeURIComponent(empresaId)}` : "/api/empresas";
-    const metodo = empresaId ? "PUT" : "POST";
-
-    try {
-      const resp = await fetch(url, {
-        method: metodo,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-      const json = await resp.json();
-
-      if (!resp.ok || !json.sucesso) {
-        exibirAlerta(json.erro || "Erro ao salvar empresa parceira.", "error", json.detalhes || []);
-        return;
-      }
-
-      exibirAlerta(json.mensagem || "Empresa parceira salva com sucesso!", "success");
-      resetarFormularioEmpresa();
-      await carregarEmpresas();
-    } catch (err) {
-      exibirAlerta("Erro de comunicação com o servidor Back-end.", "error");
-    }
-  });
-}
-
-window.iniciarEdicaoEmpresa = function (empresaId) {
-  const emp = estado.empresas.find((e) => e.id === empresaId);
-  if (!emp) return;
-
-  document.getElementById("empresa-id").value = emp.id;
-  document.getElementById("empresa-nome").value = emp.nome;
-  document.getElementById("empresa-nome-legal").value = emp.nomeLegal;
-  document.getElementById("empresa-identificador").value = emp.identificador;
-  document.getElementById("empresa-email").value = emp.email;
-  document.getElementById("empresa-descricao").value = emp.descricao || "";
+window.editarEmpresa = (id) => {
+  const e = state.empresas.find((item) => item.id === id);
+  if (!e) return;
+  document.getElementById("empresa-id").value = e.id;
+  document.getElementById("empresa-nome").value = e.nome;
+  document.getElementById("empresa-nome-legal").value = e.nomeLegal;
+  document.getElementById("empresa-identificador").value = e.identificador;
+  document.getElementById("empresa-email").value = e.email;
+  document.getElementById("empresa-descricao").value = e.descricao || "";
   document.getElementById("empresa-senha").value = "";
-
+  document.getElementById("empresa-senha").required = false;
   document.getElementById("form-empresa-titulo").textContent = "Editar Empresa Parceira";
-  const badgeModo = document.getElementById("form-empresa-modo");
-  badgeModo.textContent = "Modo: Edição (PUT)";
-  badgeModo.className = "badge badge-amber";
-
-  document.getElementById("label-empresa-senha").textContent = "Nova Senha (deixe em branco para manter a atual)";
+  document.getElementById("form-empresa-modo").textContent = "Modo: Edição (PUT)";
   document.getElementById("btn-salvar-empresa").textContent = "Salvar Alterações";
   document.getElementById("btn-cancelar-empresa").classList.remove("hidden");
-  window.scrollTo({ top: 0, behavior: "smooth" });
 };
 
-function resetarFormularioEmpresa() {
+function resetFormEmpresa() {
   document.getElementById("form-empresa").reset();
   document.getElementById("empresa-id").value = "";
-
+  document.getElementById("empresa-senha").required = true;
   document.getElementById("form-empresa-titulo").textContent = "Nova Empresa Parceira";
-  const badgeModo = document.getElementById("form-empresa-modo");
-  badgeModo.textContent = "Modo: Criação (POST)";
-  badgeModo.className = "badge badge-blue";
-
-  document.getElementById("label-empresa-senha").textContent = "Senha de Acesso * (mín. 6 caracteres)";
-  document.getElementById("btn-salvar-empresa").textContent = "Cadastrar Empresa Parceira";
+  document.getElementById("form-empresa-modo").textContent = "Modo: Criação (POST)";
+  document.getElementById("btn-salvar-empresa").textContent = "Cadastrar Empresa";
   document.getElementById("btn-cancelar-empresa").classList.add("hidden");
 }
 
-window.excluirEmpresa = async function (empresaId) {
-  const emp = estado.empresas.find((e) => e.id === empresaId);
-  const nome = emp ? emp.nome : empresaId;
-  if (!window.confirm(`Deseja realmente excluir a empresa parceira "${nome}"?`)) {
-    return;
-  }
-
-  try {
-    const resp = await fetch(`/api/empresas/${encodeURIComponent(empresaId)}`, {
-      method: "DELETE",
-    });
-    const json = await resp.json();
-    if (!resp.ok || !json.sucesso) {
-      exibirAlerta(json.erro || "Não foi possível excluir a empresa parceira.", "error");
-      return;
-    }
-    exibirAlerta(json.mensagem || "Empresa parceira excluída com sucesso.", "success");
-    if (document.getElementById("empresa-id").value === empresaId) {
-      resetarFormularioEmpresa();
-    }
+window.excluirEmpresa = async (id) => {
+  if (!confirm("Confirma a exclusão desta empresa parceira?")) return;
+  const { status, data } = await apiFetch(`/api/empresas/${id}`, { method: "DELETE" });
+  if (status === 200) {
+    showAlert(data.mensagem, "success");
     await carregarEmpresas();
-  } catch (err) {
-    exibirAlerta("Erro de comunicação ao tentar excluir empresa parceira.", "error");
+  } else {
+    showAlert(data.erro || "Erro ao excluir empresa.", "error");
   }
 };
 
+// =============================================================================
+// Mérito & Extrato (Lab04S01)
+// =============================================================================
+async function carregarExtrato() {
+  const resumo = document.getElementById("extrato-resumo");
+  const tbody = document.getElementById("tabela-extrato-body");
+
+  if (!state.usuario || (state.usuario.tipoUsuario !== "ALUNO" && state.usuario.tipoUsuario !== "PROFESSOR")) {
+    resumo.innerHTML = `Faça login como <strong>Aluno</strong> ou <strong>Professor</strong> para visualizar seu saldo e extrato.`;
+    tbody.innerHTML = `<tr><td colspan="4" class="empty-row">Nenhuma movimentação exibida.</td></tr>`;
+    return;
+  }
+
+  const { status, data } = await apiFetch("/api/extrato");
+  if (status !== 200 || !data.sucesso) {
+    resumo.textContent = data.erro || "Não foi possível carregar o extrato.";
+    return;
+  }
+
+  const ext = data.dados;
+  state.usuario.saldoMoedas = ext.saldoAtual;
+  renderAuthBar();
+  resumo.innerHTML = `Titular: <strong>${escapeHtml(state.usuario.nome)}</strong> (${ext.tipoUsuario}) • Saldo atual: <strong>${ext.saldoAtual} moedas</strong> • Total de lançamentos: <strong>${ext.transacoes.length}</strong>`;
+
+  if (!ext.transacoes.length) {
+    tbody.innerHTML = `<tr><td colspan="4" class="empty-row">Nenhuma movimentação registrada até o momento.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = ext.transacoes
+    .map(
+      (t) => `
+    <tr>
+      <td><small>${escapeHtml(t.instante)}</small></td>
+      <td><span class="${t.direcao === "ENTRADA" ? "badge-entrada" : "badge-saida"}">${t.direcao === "ENTRADA" ? "+" : "-"}${t.quantidade}</span></td>
+      <td><strong>${escapeHtml(t.descricao)}</strong><br><small class="text-muted">${escapeHtml(t.motivo || "")}</small></td>
+      <td class="text-right"><strong>${t.direcao === "ENTRADA" ? "+" : "-"}${t.quantidade} moedas</strong></td>
+    </tr>`
+    )
+    .join("");
+}
+
+// =============================================================================
+// Vantagens & Resgates / Cupons (Lab04S01)
+// =============================================================================
+async function carregarVantagens() {
+  const { data } = await apiFetch("/api/vantagens");
+  state.vantagens = data.dados || [];
+  document.getElementById("stat-vantagens").textContent = state.vantagens.length;
+  renderVantagens();
+}
+
+function renderVantagens() {
+  const grid = document.getElementById("catalogo-vantagens-grid");
+  if (!state.vantagens.length) {
+    grid.innerHTML = `<p class="empty-row">Nenhuma vantagem cadastrada no catálogo.</p>`;
+    return;
+  }
+  const isAluno = state.usuario && state.usuario.tipoUsuario === "ALUNO";
+  const isEmpresa = state.usuario && state.usuario.tipoUsuario === "EMPRESA";
+
+  grid.innerHTML = state.vantagens
+    .map((v) => {
+      const dono = isEmpresa && state.usuario.id === v.empresaId;
+      return `
+      <div class="vantagem-card">
+        <img class="vantagem-img" src="${escapeHtml(v.fotografiaUri)}" alt="${escapeHtml(v.titulo)}" onerror="this.src='https://via.placeholder.com/400x200?text=Vantagem'" />
+        <div class="vantagem-body">
+          <div class="vantagem-title">${escapeHtml(v.titulo)}</div>
+          <div class="vantagem-empresa">🏢 ${escapeHtml(v.empresaNome || "")}</div>
+          <div class="vantagem-desc">${escapeHtml(v.descricao)}</div>
+          <div class="vantagem-footer">
+            <span class="vantagem-custo">${v.custoMoedas} moedas</span>
+            <div>
+              ${isAluno ? `<button class="btn btn-sm btn-primary" onclick="resgatarVantagem('${v.id}')">Resgatar</button>` : ""}
+              ${dono ? `<button class="btn btn-sm btn-secondary" onclick="editarVantagem('${v.id}')">Editar</button> <button class="btn btn-sm btn-danger" onclick="excluirVantagem('${v.id}')">Excluir</button>` : ""}
+            </div>
+          </div>
+        </div>
+      </div>`;
+    })
+    .join("");
+}
+
+window.resgatarVantagem = async (vantagemId) => {
+  const { status, data } = await apiFetch(`/api/vantagens/${vantagemId}/resgatar`, { method: "POST" });
+  if (status === 201 && data.sucesso) {
+    showAlert(data.mensagem, "success");
+    await Promise.all([carregarSessao(), carregarExtrato(), carregarResgates(), carregarNotificacoes(), carregarAlunos()]);
+  } else {
+    showAlert(data.erro || "Não foi possível resgatar a vantagem.", "error");
+  }
+};
+
+window.editarVantagem = (id) => {
+  const v = state.vantagens.find((item) => item.id === id);
+  if (!v) return;
+  document.getElementById("vantagem-id").value = v.id;
+  document.getElementById("vantagem-titulo").value = v.titulo;
+  document.getElementById("vantagem-custo").value = v.custoMoedas;
+  document.getElementById("vantagem-foto").value = v.fotografiaUri;
+  document.getElementById("vantagem-oferta").value = v.dadosOferta || "";
+  document.getElementById("vantagem-descricao").value = v.descricao;
+  document.getElementById("form-vantagem-titulo").textContent = "Editar Vantagem";
+  document.getElementById("btn-cancelar-vantagem").classList.remove("hidden");
+};
+
+window.excluirVantagem = async (id) => {
+  if (!confirm("Remover esta vantagem do catálogo?")) return;
+  const { status, data } = await apiFetch(`/api/vantagens/${id}`, { method: "DELETE" });
+  if (status === 200) {
+    showAlert(data.mensagem, "success");
+    await carregarVantagens();
+  } else {
+    showAlert(data.erro || "Erro ao remover vantagem.", "error");
+  }
+};
+
+async function carregarResgates() {
+  const tbody = document.getElementById("tabela-resgates-body");
+  if (!state.usuario || (state.usuario.tipoUsuario !== "ALUNO" && state.usuario.tipoUsuario !== "EMPRESA")) {
+    tbody.innerHTML = `<tr><td colspan="5" class="empty-row">Faça login como Aluno ou Empresa para consultar os cupons.</td></tr>`;
+    return;
+  }
+  const { status, data } = await apiFetch("/api/resgates");
+  if (status !== 200 || !data.sucesso) {
+    tbody.innerHTML = `<tr><td colspan="5" class="empty-row">${escapeHtml(data.erro || "Erro ao carregar cupons.")}</td></tr>`;
+    return;
+  }
+  state.resgates = data.dados || [];
+  if (!state.resgates.length) {
+    tbody.innerHTML = `<tr><td colspan="5" class="empty-row">Nenhum resgate/cupom registrado até o momento.</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = state.resgates
+    .map(
+      (r) => `
+    <tr>
+      <td><span class="cupom-code">${escapeHtml(r.codigoConferencia)}</span></td>
+      <td><strong>${escapeHtml(r.vantagemTitulo)}</strong></td>
+      <td>${escapeHtml(r.alunoNome)}<br><small class="text-muted">${escapeHtml(r.empresaNome)}</small></td>
+      <td>${r.custoAplicado} moedas</td>
+      <td><small>${escapeHtml(r.instante)}</small></td>
+    </tr>`
+    )
+    .join("");
+}
+
+// =============================================================================
+// Notificações por E-mail
+// =============================================================================
+async function carregarNotificacoes() {
+  const container = document.getElementById("lista-notificacoes");
+  const { status, data } = await apiFetch("/api/notificacoes");
+  if (status !== 200 || !data.sucesso) {
+    container.innerHTML = `<p class="empty-row">Não foi possível carregar as notificações.</p>`;
+    return;
+  }
+  state.notificacoes = data.dados || [];
+  if (!state.notificacoes.length) {
+    container.innerHTML = `<p class="empty-row">Nenhum e-mail enviado ainda. Realize uma transferência de moedas ou um resgate de vantagem.</p>`;
+    return;
+  }
+  container.innerHTML = state.notificacoes
+    .map(
+      (n) => `
+    <div class="notif-item">
+      <div class="notif-header">
+        <div>
+          <span class="badge badge-blue">${escapeHtml(n.tipo)}</span>
+          <strong>${escapeHtml(n.assunto)}</strong>
+        </div>
+        <small class="text-muted">Para: ${escapeHtml(n.destinatarioNome)} (${escapeHtml(n.destinatarioEmail)}) • ${escapeHtml(n.criadoEm)}</small>
+      </div>
+      <div class="notif-body">${escapeHtml(n.corpo)}</div>
+    </div>`
+    )
+    .join("");
+}
+
+// =============================================================================
+// Event Listeners & Inicialização
+// =============================================================================
+document.addEventListener("DOMContentLoaded", async () => {
+  initTabs();
+
+  // Login
+  document.getElementById("form-login").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    await fazerLogin(
+      document.getElementById("login-email").value,
+      document.getElementById("login-senha").value
+    );
+  });
+
+  document.querySelectorAll("[data-demo-role]").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const role = btn.dataset.demoRole;
+      const creds = {
+        ALUNO: ["pedro.queiroz@sga.pucminas.br", "Aluno@2026"],
+        PROFESSOR: ["milena.adao@pucminas.br", "Prof@2026"],
+        EMPRESA: ["contato@livrariauniversitaria.com.br", "Parceiro@2026"],
+      }[role];
+      if (creds) await fazerLogin(creds[0], creds[1]);
+    });
+  });
+
+  document.getElementById("btn-logout").addEventListener("click", logout);
+
+  // Transferência de moedas (Professor)
+  document.getElementById("form-transferencia").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const { status, data } = await apiFetch("/api/merito/transferir", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        alunoId: document.getElementById("transf-aluno").value,
+        quantidade: Number(document.getElementById("transf-quantidade").value),
+        motivo: document.getElementById("transf-motivo").value,
+      }),
+    });
+    if (status === 201 && data.sucesso) {
+      showAlert(data.mensagem, "success");
+      document.getElementById("transf-motivo").value = "";
+      await Promise.all([carregarSessao(), carregarExtrato(), carregarAlunos(), carregarNotificacoes()]);
+    } else {
+      showAlert((data.detalhes && data.detalhes.join(" ")) || data.erro || "Erro ao enviar moedas.", "error");
+    }
+  });
+
+  // Crédito semestral (Professor)
+  document.getElementById("form-credito-semestral").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const { status, data } = await apiFetch("/api/merito/credito-semestral", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ periodo: document.getElementById("credito-periodo").value }),
+    });
+    if (status === 201 && data.sucesso) {
+      showAlert(data.mensagem, "success");
+      await Promise.all([carregarSessao(), carregarExtrato()]);
+    } else {
+      showAlert(data.erro || "Erro ao conceder crédito semestral.", "error");
+    }
+  });
+
+  document.getElementById("btn-atualizar-extrato").addEventListener("click", carregarExtrato);
+  document.getElementById("btn-atualizar-notifs").addEventListener("click", carregarNotificacoes);
+
+  // Vantagem (Empresa)
+  document.getElementById("form-vantagem").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const id = document.getElementById("vantagem-id").value;
+    const payload = {
+      titulo: document.getElementById("vantagem-titulo").value,
+      custoMoedas: Number(document.getElementById("vantagem-custo").value),
+      fotografiaUri: document.getElementById("vantagem-foto").value,
+      dadosOferta: document.getElementById("vantagem-oferta").value,
+      descricao: document.getElementById("vantagem-descricao").value,
+    };
+    const { status, data } = await apiFetch(id ? `/api/vantagens/${id}` : "/api/vantagens", {
+      method: id ? "PUT" : "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if ((status === 200 || status === 201) && data.sucesso) {
+      showAlert(data.mensagem, "success");
+      document.getElementById("form-vantagem").reset();
+      document.getElementById("vantagem-id").value = "";
+      document.getElementById("form-vantagem-titulo").textContent = "Cadastrar Vantagem (Empresa)";
+      document.getElementById("btn-cancelar-vantagem").classList.add("hidden");
+      await carregarVantagens();
+    } else {
+      showAlert((data.detalhes && data.detalhes.join(" ")) || data.erro || "Erro ao salvar vantagem.", "error");
+    }
+  });
+
+  document.getElementById("btn-cancelar-vantagem").addEventListener("click", () => {
+    document.getElementById("form-vantagem").reset();
+    document.getElementById("vantagem-id").value = "";
+    document.getElementById("form-vantagem-titulo").textContent = "Cadastrar Vantagem (Empresa)";
+    document.getElementById("btn-cancelar-vantagem").classList.add("hidden");
+  });
+
+  // Aluno CRUD
+  document.getElementById("aluno-instituicao").addEventListener("change", (e) => {
+    carregarCursosPorInstituicao(e.target.value);
+  });
+  document.getElementById("busca-aluno").addEventListener("input", (e) => renderTabelaAlunos(e.target.value));
+  document.getElementById("btn-cancelar-aluno").addEventListener("click", resetFormAluno);
+  document.getElementById("form-aluno").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const id = document.getElementById("aluno-id").value;
+    const payload = {
+      nome: document.getElementById("aluno-nome").value,
+      cpf: document.getElementById("aluno-cpf").value,
+      rg: document.getElementById("aluno-rg").value,
+      email: document.getElementById("aluno-email").value,
+      endereco: document.getElementById("aluno-endereco").value,
+      instituicaoId: document.getElementById("aluno-instituicao").value,
+      cursoId: document.getElementById("aluno-curso").value,
+      senha: document.getElementById("aluno-senha").value,
+    };
+    const { status, data } = await apiFetch(id ? `/api/alunos/${id}` : "/api/alunos", {
+      method: id ? "PUT" : "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if ((status === 200 || status === 201) && data.sucesso) {
+      showAlert(data.mensagem, "success");
+      resetFormAluno();
+      await carregarAlunos();
+    } else {
+      showAlert((data.detalhes && data.detalhes.join(" ")) || data.erro || "Erro ao salvar aluno.", "error");
+    }
+  });
+
+  // Empresa CRUD
+  document.getElementById("busca-empresa").addEventListener("input", (e) => renderTabelaEmpresas(e.target.value));
+  document.getElementById("btn-cancelar-empresa").addEventListener("click", resetFormEmpresa);
+  document.getElementById("form-empresa").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const id = document.getElementById("empresa-id").value;
+    const payload = {
+      nome: document.getElementById("empresa-nome").value,
+      nomeLegal: document.getElementById("empresa-nome-legal").value,
+      identificador: document.getElementById("empresa-identificador").value,
+      email: document.getElementById("empresa-email").value,
+      descricao: document.getElementById("empresa-descricao").value,
+      senha: document.getElementById("empresa-senha").value,
+    };
+    const { status, data } = await apiFetch(id ? `/api/empresas/${id}` : "/api/empresas", {
+      method: id ? "PUT" : "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if ((status === 200 || status === 201) && data.sucesso) {
+      showAlert(data.mensagem, "success");
+      resetFormEmpresa();
+      await carregarEmpresas();
+    } else {
+      showAlert((data.detalhes && data.detalhes.join(" ")) || data.erro || "Erro ao salvar empresa.", "error");
+    }
+  });
+
+  // Carga inicial
+  await Promise.all([
+    carregarSessao(),
+    carregarInstituicoes(),
+    carregarAlunos(),
+    carregarEmpresas(),
+    carregarVantagens(),
+    carregarNotificacoes(),
+  ]);
+  await Promise.all([carregarExtrato(), carregarResgates()]);
+});

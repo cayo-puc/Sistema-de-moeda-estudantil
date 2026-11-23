@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sistema de Moeda Estudantil — Lab03S02 (MVC + ORM/DAO)</title>
-  <link rel="stylesheet" href="/static/styles.css" />
+  <title>Sistema de Moeda Estudantil — PUC Minas (Lab04S02)</title>
+  <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <header class="topbar">
     <div class="container topbar-inner">
       <div class="brand">
-        <div class="brand-badge">PUC Minas • Lab03S02</div>
+        <div class="brand-badge">PUC Minas • Release 2 (Lab04S02)</div>
         <h1>Sistema de Moeda Estudantil</h1>
-        <p>Arquitetura MVC • Persistência Relacional com ORM &amp; Padrão DAO • CRUDs de Aluno e Empresa Parceira</p>
+        <p>Arquitetura MVC • ORM &amp; Padrão DAO • Mérito, Vantagens, Cupons e Notificações</p>
       </div>
       <div class="stats-bar">
         <div class="stat-pill">
@@ -20,8 +20,12 @@
           <strong id="stat-alunos">0</strong>
         </div>
         <div class="stat-pill">
-          <span class="stat-label">Empresas Parceiras</span>
+          <span class="stat-label">Empresas</span>
           <strong id="stat-empresas">0</strong>
+        </div>
+        <div class="stat-pill">
+          <span class="stat-label">Vantagens</span>
+          <strong id="stat-vantagens">0</strong>
         </div>
         <div class="stat-pill">
           <span class="stat-label">Instituições</span>
@@ -32,16 +36,60 @@
   </header>
 
   <main class="container main-content">
+    <!-- Barra de Autenticação (HU-05) -->
+    <section class="card auth-bar" id="auth-section">
+      <div id="auth-logged-out" class="auth-row">
+        <div class="auth-info">
+          <strong>🔐 Autenticação (HU-05)</strong>
+          <span class="card-subtitle">Entre como Aluno, Professor ou Empresa Parceira para realizar operações autenticadas.</span>
+        </div>
+        <form id="form-login" class="auth-form">
+          <input type="email" id="login-email" placeholder="E-mail" required />
+          <input type="password" id="login-senha" placeholder="Senha" required />
+          <button type="submit" class="btn btn-primary">Entrar</button>
+        </form>
+        <div class="demo-logins">
+          <span class="demo-label">Acesso rápido (Demo):</span>
+          <button type="button" class="btn btn-sm btn-secondary" data-demo-role="ALUNO">🎓 Aluno</button>
+          <button type="button" class="btn btn-sm btn-secondary" data-demo-role="PROFESSOR">👨‍🏫 Professor</button>
+          <button type="button" class="btn btn-sm btn-secondary" data-demo-role="EMPRESA">🏢 Empresa</button>
+        </div>
+      </div>
+
+      <div id="auth-logged-in" class="auth-row hidden">
+        <div class="auth-user-details">
+          <span class="badge badge-blue" id="auth-user-role">ALUNO</span>
+          <strong id="auth-user-name">Usuário</strong>
+          <span class="text-muted" id="auth-user-email">email@exemplo.com</span>
+        </div>
+        <div class="auth-user-actions">
+          <div id="auth-saldo-box" class="saldo-pill hidden">
+            Saldo: <strong id="auth-user-saldo">0</strong> moedas
+          </div>
+          <button type="button" id="btn-logout" class="btn btn-sm btn-secondary">Sair</button>
+        </div>
+      </div>
+    </section>
+
     <!-- Navegação por Abas -->
     <nav class="tabs" role="tablist">
-      <button class="tab-btn active" data-tab="tab-alunos" role="tab">
+      <button class="tab-btn active" data-tab="tab-merito" role="tab">
+        🏅 Mérito &amp; Extrato
+      </button>
+      <button class="tab-btn" data-tab="tab-vantagens" role="tab">
+        🎁 Vantagens &amp; Cupons
+      </button>
+      <button class="tab-btn" data-tab="tab-notificacoes" role="tab">
+        📧 E-mails Enviados
+      </button>
+      <button class="tab-btn" data-tab="tab-alunos" role="tab">
         🎓 CRUD de Alunos (HU-01)
       </button>
       <button class="tab-btn" data-tab="tab-empresas" role="tab">
-        🏢 CRUD de Empresas Parceiras (HU-03)
+        🏢 CRUD de Empresas (HU-03)
       </button>
       <button class="tab-btn" data-tab="tab-arquitetura" role="tab">
-        🗄️ Modelo ER &amp; Estratégia ORM/DAO
+        🗄️ Arquitetura &amp; Diagramas UML
       </button>
     </nav>
 
@@ -49,11 +97,199 @@
     <div id="alert-box" class="alert hidden" role="alert"></div>
 
     <!-- =================================================================== -->
-    <!-- ABA 1: CRUD DE ALUNOS                                               -->
+    <!-- ABA 1: MÉRITO E EXTRATO (HU-02, HU-06, HU-07, HU-09)                -->
     <!-- =================================================================== -->
-    <section id="tab-alunos" class="tab-panel active">
+    <section id="tab-merito" class="tab-panel active">
       <div class="grid-layout">
-        <!-- Formulário de Cadastro / Edição de Aluno -->
+        <!-- Painel de Ações do Professor / Resumo -->
+        <div class="card form-card">
+          <div class="card-header">
+            <h2>Distribuição de Moedas (Professor)</h2>
+            <span class="badge badge-blue">HU-06 / HU-07</span>
+          </div>
+          <p class="card-subtitle">
+            Professores autenticados enviam moedas com motivo obrigatório (notificando o aluno por e-mail) e recebem 1.000 moedas acumuláveis por semestre.
+          </p>
+
+          <form id="form-transferencia">
+            <div class="form-group">
+              <label for="transf-aluno">Aluno Destinatário *</label>
+              <select id="transf-aluno" required>
+                <option value="">Selecione o aluno...</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="transf-quantidade">Quantidade de Moedas *</label>
+              <input type="number" id="transf-quantidade" min="1" value="50" required />
+            </div>
+            <div class="form-group">
+              <label for="transf-motivo">Motivo do Reconhecimento (Obrigatório) *</label>
+              <textarea id="transf-motivo" rows="3" required placeholder="Ex.: Excelente participação nas aulas de Projeto de Software..."></textarea>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary">Enviar Moedas</button>
+            </div>
+          </form>
+
+          <hr class="divider" />
+
+          <div class="credito-semestral-box">
+            <h3>Crédito Semestral Acumulado (HU-06)</h3>
+            <p class="card-subtitle">Adiciona +1.000 moedas ao saldo corrente do professor para o semestre letivo.</p>
+            <form id="form-credito-semestral" class="inline-form">
+              <input type="text" id="credito-periodo" value="2026.2" placeholder="Ex.: 2026.2" required />
+              <button type="submit" class="btn btn-secondary">+1.000 Moedas</button>
+            </form>
+          </div>
+        </div>
+
+        <!-- Consulta de Extrato (Aluno ou Professor) -->
+        <div class="card list-card">
+          <div class="card-header">
+            <div>
+              <h2>Extrato da Conta de Moedas (HU-09)</h2>
+              <p class="card-subtitle">Histórico de créditos, envios, recebimentos e resgates do usuário autenticado</p>
+            </div>
+            <button type="button" id="btn-atualizar-extrato" class="btn btn-sm btn-secondary">Atualizar Extrato</button>
+          </div>
+
+          <div id="extrato-resumo" class="extrato-resumo">
+            Faça login como <strong>Aluno</strong> ou <strong>Professor</strong> para visualizar seu saldo e extrato.
+          </div>
+
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Data/Hora</th>
+                  <th>Tipo</th>
+                  <th>Descrição &amp; Motivo</th>
+                  <th class="text-right">Quantidade</th>
+                </tr>
+              </thead>
+              <tbody id="tabela-extrato-body">
+                <tr>
+                  <td colspan="4" class="empty-row">Nenhuma movimentação exibida.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- ABA 2: VANTAGENS E CUPONS (HU-04, HU-10, HU-11)                     -->
+    <!-- =================================================================== -->
+    <section id="tab-vantagens" class="tab-panel">
+      <div class="grid-layout">
+        <!-- Formulário de Cadastro de Vantagem (Empresa Parceira) -->
+        <div class="card form-card">
+          <div class="card-header">
+            <h2 id="form-vantagem-titulo">Cadastrar Vantagem (Empresa)</h2>
+            <span class="badge badge-blue">HU-04</span>
+          </div>
+          <p class="card-subtitle">
+            Empresas parceiras autenticadas cadastram produtos ou descontos com descrição, foto e custo em moedas.
+          </p>
+
+          <form id="form-vantagem">
+            <input type="hidden" id="vantagem-id" />
+            <div class="form-group">
+              <label for="vantagem-titulo">Título da Vantagem *</label>
+              <input type="text" id="vantagem-titulo" required placeholder="Ex.: Desconto de 25% em Livros" />
+            </div>
+            <div class="form-group">
+              <label for="vantagem-custo">Custo em Moedas *</label>
+              <input type="number" id="vantagem-custo" min="1" required placeholder="Ex.: 100" />
+            </div>
+            <div class="form-group">
+              <label for="vantagem-foto">URL da Foto do Produto *</label>
+              <input type="url" id="vantagem-foto" required placeholder="https://..." />
+            </div>
+            <div class="form-group">
+              <label for="vantagem-oferta">Detalhes da Oferta / Local de Retirada</label>
+              <input type="text" id="vantagem-oferta" placeholder="Ex.: Válido na loja física do campus" />
+            </div>
+            <div class="form-group">
+              <label for="vantagem-descricao">Descrição *</label>
+              <textarea id="vantagem-descricao" rows="3" required placeholder="Descreva as condições e o benefício..."></textarea>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn btn-primary" id="btn-salvar-vantagem">Salvar Vantagem</button>
+              <button type="button" class="btn btn-secondary hidden" id="btn-cancelar-vantagem">Cancelar</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Catálogo de Vantagens + Cupons/Resgates -->
+        <div class="card list-card">
+          <div class="card-header">
+            <div>
+              <h2>Catálogo de Vantagens Disponíveis (HU-10)</h2>
+              <p class="card-subtitle">Alunos autenticados podem resgatar benefícios e receber o cupom com código por e-mail</p>
+            </div>
+          </div>
+
+          <div id="catalogo-vantagens-grid" class="vantagens-grid">
+            <p class="empty-row">Carregando vantagens...</p>
+          </div>
+
+          <hr class="divider" />
+
+          <div class="card-header">
+            <div>
+              <h2>Cupons e Resgates Confirmados (HU-11)</h2>
+              <p class="card-subtitle">Visão do Aluno (meus cupons) ou da Empresa Parceira (conferência presencial)</p>
+            </div>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Código do Cupom</th>
+                  <th>Vantagem</th>
+                  <th>Aluno / Empresa</th>
+                  <th>Custo</th>
+                  <th>Data</th>
+                </tr>
+              </thead>
+              <tbody id="tabela-resgates-body">
+                <tr>
+                  <td colspan="5" class="empty-row">Faça login como Aluno ou Empresa para consultar os cupons.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- ABA 3: NOTIFICAÇÕES POR E-MAIL (HU-08, HU-11)                       -->
+    <!-- =================================================================== -->
+    <section id="tab-notificacoes" class="tab-panel">
+      <div class="card">
+        <div class="card-header">
+          <div>
+            <h2>Caixa de E-mails Enviados (Notificações Automáticas)</h2>
+            <p class="card-subtitle">
+              Auditoria dos e-mails disparados pelo <code>NotificacaoService</code> (recebimento de moedas, cupom do aluno e conferência do parceiro).
+            </p>
+          </div>
+          <button type="button" id="btn-atualizar-notifs" class="btn btn-sm btn-secondary">Atualizar</button>
+        </div>
+        <div id="lista-notificacoes" class="notifs-list">
+          <p class="empty-row">Carregando notificações...</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- =================================================================== -->
+    <!-- ABA 4: CRUD DE ALUNOS (HU-01)                                       -->
+    <!-- =================================================================== -->
+    <section id="tab-alunos" class="tab-panel">
+      <div class="grid-layout">
         <div class="card form-card">
           <div class="card-header">
             <h2 id="form-aluno-titulo">Novo Cadastro de Aluno</h2>
@@ -101,32 +337,24 @@
               </div>
               <div class="form-group">
                 <label for="aluno-curso">Curso *</label>
-                <select id="aluno-curso" required>
-                  <option value="">Selecione primeiro a instituição...</option>
+                <select id="aluno-curso" required disabled>
+                  <option value="">Selecione a instituição primeiro...</option>
                 </select>
               </div>
             </div>
 
             <div class="form-group">
-              <label for="aluno-senha" id="label-aluno-senha">Senha de Acesso * (mín. 6 caracteres)</label>
-              <input type="password" id="aluno-senha" placeholder="••••••••" />
-              <small class="help-text" id="help-aluno-senha">
-                Armazenada com hash criptográfico PBKDF2-HMAC-SHA256 no banco de dados (RF04).
-              </small>
+              <label for="aluno-senha" id="aluno-senha-label">Senha de Acesso * (mín. 6 caracteres)</label>
+              <input type="password" id="aluno-senha" required placeholder="••••••••" />
             </div>
 
             <div class="form-actions">
-              <button type="submit" class="btn btn-primary" id="btn-salvar-aluno">
-                Cadastrar Aluno
-              </button>
-              <button type="button" class="btn btn-secondary hidden" id="btn-cancelar-aluno">
-                Cancelar Edição
-              </button>
+              <button type="submit" class="btn btn-primary" id="btn-salvar-aluno">Cadastrar Aluno</button>
+              <button type="button" class="btn btn-secondary hidden" id="btn-cancelar-aluno">Cancelar Edição</button>
             </div>
           </form>
         </div>
 
-        <!-- Listagem de Alunos -->
         <div class="card list-card">
           <div class="card-header">
             <div>
@@ -134,7 +362,7 @@
               <p class="card-subtitle">Consultando <code>usuarios ⋈ alunos ⋈ contas_moedas</code> via <code>AlunoDAO</code></p>
             </div>
             <div class="search-box">
-              <input type="search" id="busca-aluno" placeholder="Buscar por nome, CPF, curso..." />
+              <input type="search" id="busca-aluno" placeholder="Buscar por nome, CPF, e-mail..." />
             </div>
           </div>
 
@@ -142,17 +370,16 @@
             <table class="data-table">
               <thead>
                 <tr>
-                  <th>Aluno / E-mail</th>
-                  <th>CPF &amp; RG</th>
-                  <th>Instituição &amp; Curso</th>
-                  <th>Endereço</th>
+                  <th>Nome / E-mail</th>
+                  <th>CPF / RG</th>
+                  <th>Instituição / Curso</th>
                   <th>Saldo</th>
                   <th class="text-right">Ações</th>
                 </tr>
               </thead>
               <tbody id="tabela-alunos-body">
                 <tr>
-                  <td colspan="6" class="empty-row">Carregando alunos...</td>
+                  <td colspan="5" class="empty-row">Carregando alunos...</td>
                 </tr>
               </tbody>
             </table>
@@ -162,18 +389,17 @@
     </section>
 
     <!-- =================================================================== -->
-    <!-- ABA 2: CRUD DE EMPRESAS PARCEIRAS                                   -->
+    <!-- ABA 5: CRUD DE EMPRESAS PARCEIRAS (HU-03)                           -->
     <!-- =================================================================== -->
     <section id="tab-empresas" class="tab-panel">
       <div class="grid-layout">
-        <!-- Formulário de Cadastro / Edição de Empresa Parceira -->
         <div class="card form-card">
           <div class="card-header">
             <h2 id="form-empresa-titulo">Nova Empresa Parceira</h2>
             <span class="badge badge-blue" id="form-empresa-modo">Modo: Criação (POST)</span>
           </div>
           <p class="card-subtitle">
-            Cadastre empresas parceiras que oferecerão vantagens e descontos em troca de moedas estudantis (RF03).
+            Empresas parceiras oferecem vantagens e descontos aos alunos em troca de moedas estudantis (RF03).
           </p>
 
           <form id="form-empresa" novalidate>
@@ -181,50 +407,42 @@
 
             <div class="form-group">
               <label for="empresa-nome">Nome Fantasia / Exibição *</label>
-              <input type="text" id="empresa-nome" required placeholder="Ex.: TechBooks Livraria" />
+              <input type="text" id="empresa-nome" required placeholder="Ex.: Livraria Acadêmica" />
             </div>
 
             <div class="form-group">
               <label for="empresa-nome-legal">Razão Social (Nome Legal) *</label>
-              <input type="text" id="empresa-nome-legal" required placeholder="Ex.: TechBooks Comércio de Livros LTDA" />
+              <input type="text" id="empresa-nome-legal" required placeholder="Ex.: Livraria Acadêmica LTDA" />
             </div>
 
             <div class="form-row">
               <div class="form-group">
                 <label for="empresa-identificador">CNPJ / Identificador *</label>
-                <input type="text" id="empresa-identificador" maxlength="18" required placeholder="00.000.000/0001-00" />
+                <input type="text" id="empresa-identificador" maxlength="20" required placeholder="00.000.000/0001-00" />
               </div>
               <div class="form-group">
                 <label for="empresa-email">E-mail Corporativo *</label>
-                <input type="email" id="empresa-email" required placeholder="parceria@empresa.com.br" />
+                <input type="email" id="empresa-email" required placeholder="contato@empresa.com.br" />
               </div>
             </div>
 
             <div class="form-group">
-              <label for="empresa-descricao">Descrição da Parceria / Benefícios Oferecidos</label>
-              <textarea id="empresa-descricao" rows="3" placeholder="Ex.: Descontos em livros, cursos, alimentação no campus..."></textarea>
+              <label for="empresa-descricao">Descrição da Parceria</label>
+              <textarea id="empresa-descricao" rows="3" placeholder="Descreva os produtos, descontos ou benefícios oferecidos..."></textarea>
             </div>
 
             <div class="form-group">
-              <label for="empresa-senha" id="label-empresa-senha">Senha de Acesso * (mín. 6 caracteres)</label>
-              <input type="password" id="empresa-senha" placeholder="••••••••" />
-              <small class="help-text" id="help-empresa-senha">
-                Armazenada com hash criptográfico PBKDF2-HMAC-SHA256 (RF04).
-              </small>
+              <label for="empresa-senha" id="empresa-senha-label">Senha de Acesso * (mín. 6 caracteres)</label>
+              <input type="password" id="empresa-senha" required placeholder="••••••••" />
             </div>
 
             <div class="form-actions">
-              <button type="submit" class="btn btn-primary" id="btn-salvar-empresa">
-                Cadastrar Empresa Parceira
-              </button>
-              <button type="button" class="btn btn-secondary hidden" id="btn-cancelar-empresa">
-                Cancelar Edição
-              </button>
+              <button type="submit" class="btn btn-primary" id="btn-salvar-empresa">Cadastrar Empresa</button>
+              <button type="button" class="btn btn-secondary hidden" id="btn-cancelar-empresa">Cancelar Edição</button>
             </div>
           </form>
         </div>
 
-        <!-- Listagem de Empresas Parceiras -->
         <div class="card list-card">
           <div class="card-header">
             <div>
@@ -259,14 +477,14 @@
     </section>
 
     <!-- =================================================================== -->
-    <!-- ABA 3: MODELO ER E ESTRATÉGIA DE PERSISTÊNCIA                       -->
+    <!-- ABA 6: ARQUITETURA & DIAGRAMAS UML (Lab03S02 -> Lab04S02)           -->
     <!-- =================================================================== -->
     <section id="tab-arquitetura" class="tab-panel">
       <div class="card">
         <div class="card-header">
           <div>
-            <h2>Estratégia de Acesso ao Banco de Dados (ORM + Padrão DAO)</h2>
-            <p class="card-subtitle">Alinhamento entre o Diagrama de Classes, o Diagrama de Componentes (MVC) e a Camada de Persistência Relacional</p>
+            <h2>Arquitetura MVC, Persistência (ORM/DAO) e Diagramas UML</h2>
+            <p class="card-subtitle">Documentação visual completa da Release 1 e Release 2 (Lab03S01 até Lab04S02)</p>
           </div>
         </div>
 
@@ -274,34 +492,47 @@
           <div class="arch-box">
             <h3>1. Mapeamento Objeto-Relacional (ORM)</h3>
             <p>
-              Utiliza a estratégia <strong>Joined Table Inheritance</strong> (Herança por Tabelas Juntadas):
-              a tabela base <code>usuarios</code> armazena credenciais e metadados comuns (<code>id</code>, <code>nome</code>,
-              <code>email</code>, <code>hash_senha</code>, <code>tipo_usuario</code>), enquanto as tabelas especializadas
-              <code>alunos</code>, <code>professores</code> e <code>empresas_parceiras</code> possuem chave primária/estrangeira
-              <code>usuario_id</code> vinculada com <code>ON DELETE CASCADE</code>.
+              <strong>Joined Table Inheritance</strong>: a tabela base <code>usuarios</code> armazena credenciais e
+              perfis, enquanto <code>alunos</code>, <code>professores</code> e <code>empresas_parceiras</code>
+              estendem a chave primária com <code>ON DELETE CASCADE</code>.
             </p>
           </div>
           <div class="arch-box">
-            <h3>2. Padrão DAO (Data Access Object)</h3>
+            <h3>2. Padrão DAO &amp; Transações</h3>
             <p>
-              Implementa a interface genérica <code>GenericDAO[T]</code> (<code>src/dao/base_dao.py</code>) concretizada por
-              <code>AlunoDAO</code>, <code>EmpresaParceiraDAO</code> e <code>CatalogoDAO</code>. Todo acesso SQL fica
-              encapsulado nos DAOs sob transações atômicas (Unit of Work em <code>DatabaseManager.transaction()</code>).
+              <code>AlunoDAO</code>, <code>ProfessorDAO</code>, <code>EmpresaParceiraDAO</code>,
+              <code>MovimentacaoDAO</code>, <code>VantagemDAO</code> e <code>ResgateDAO</code> encapsulam todo acesso
+              SQL sob transações atômicas (<em>Unit of Work</em>).
             </p>
           </div>
           <div class="arch-box">
-            <h3>3. Comunicação Front-end ↔ Back-end (REST MVC)</h3>
+            <h3>3. Segurança, Notificação e Nuvem</h3>
             <p>
-              A camada <strong>View</strong> (HTML5/CSS3/JS Fetch API) envia requisições HTTP JSON (<code>GET</code>,
-              <code>POST</code>, <code>PUT</code>, <code>DELETE</code>) para os endpoints <code>/api/alunos</code> e
-              <code>/api/empresas</code>, processados por <code>AlunoController</code> e <code>EmpresaParceiraController</code>.
+              Autenticação via token HMAC-SHA256 e hash PBKDF2-SHA256, notificações por e-mail via
+              <code>NotificacaoService</code> (SMTP + auditoria) e deploy preparado para <strong>Vercel</strong> e
+              <strong>Render</strong>.
             </p>
           </div>
         </div>
 
         <div class="er-diagram-container">
+          <h3>Diagrama de Implantação (Deployment Diagram — Lab04S02)</h3>
+          <img src="/diagrama-implantacao.svg" alt="Diagrama de Implantação" class="er-svg-preview" />
+        </div>
+
+        <div class="er-diagram-container">
+          <h3>Diagrama de Visão Geral de Interação (Interaction Overview — Lab04S01)</h3>
+          <img src="/diagrama-visao-geral-interacao.svg" alt="Diagrama de Visão Geral de Interação" class="er-svg-preview" />
+        </div>
+
+        <div class="er-diagram-container">
+          <h3>Diagramas de Sequência (Sequence Diagrams — Lab04S01)</h3>
+          <img src="/diagrama-sequencia.svg" alt="Diagramas de Sequência" class="er-svg-preview" />
+        </div>
+
+        <div class="er-diagram-container">
           <h3>Diagrama Entidade-Relacionamento (MER — Lab03S02)</h3>
-          <img src="/modelo-er.svg" alt="Modelo Entidade-Relacionamento do Sistema de Moeda Estudantil" class="er-svg-preview" />
+          <img src="/modelo-er.svg" alt="Modelo Entidade-Relacionamento" class="er-svg-preview" />
         </div>
       </div>
     </section>
@@ -309,11 +540,10 @@
 
   <footer class="footer">
     <div class="container">
-      PUC Minas • Engenharia de Software • Projeto de Software (Lab 03) — Sprint 02 (Lab03S02)
+      PUC Minas • Engenharia de Software • Projeto de Software (Lab 03 &amp; Lab 04) — Release 2 (Lab04S02)
     </div>
   </footer>
 
-  <script src="/static/app.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
-

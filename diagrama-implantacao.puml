@@ -1,0 +1,35 @@
+@startuml
+title Diagrama de Implantação (Deployment Diagram — Lab04S02)
+
+node "Dispositivo do Usuário" <<device>> {
+  artifact "Navegador Web\n(HTML5 / CSS3 / JS Fetch API)" as Browser
+}
+
+cloud "Vercel (Edge Network)" <<cloud>> {
+  node "Vercel Static Hosting" <<executionEnvironment>> {
+    artifact "src/views/\n(index.html, styles.css, app.js)" as FrontAssets
+    artifact "vercel.json\n(Rewrites /api/* -> Render)" as VercelConfig
+  }
+}
+
+cloud "Render (PaaS Cloud)" <<cloud>> {
+  node "Web Service Python (WSGI)" <<executionEnvironment>> {
+    artifact "Gunicorn\n(app:application)" as Gunicorn
+    artifact "API REST MVC\n(Controllers, Services, DAOs)" as BackendApp
+    database "SQLite3\n(moeda_estudantil.db)" as SQLiteDB
+  }
+}
+
+cloud "Serviço Externo de E-mail" <<cloud>> {
+  node "Servidor SMTP" <<executionEnvironment>> {
+    artifact "Envio de Notificações\n(Cupons e Reconhecimentos)" as SMTP
+  }
+}
+
+Browser --> FrontAssets : HTTPS (GET /index.html, CSS, JS)
+Browser --> VercelConfig : HTTPS (API Calls /api/*)
+VercelConfig --> Gunicorn : HTTPS Proxy / CORS
+Gunicorn --> BackendApp : WSGI
+BackendApp --> SQLiteDB : SQL / Transações Atômicas
+BackendApp --> SMTP : STARTTLS (porta 587)
+@enduml

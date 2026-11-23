@@ -1,0 +1,13 @@
+{
+  "version": 2,
+  "rewrites": [
+    {
+      "source": "/api/(.*)",
+      "destination": "https://sistema-moeda-estudantil-api.onrender.com/api/$1"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/src/views/$1"
+    }
+  ]
+}

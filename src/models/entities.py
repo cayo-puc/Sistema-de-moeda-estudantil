@@ -271,3 +271,186 @@ class EmpresaParceira(Usuario):
             "atualizadoEm": self.atualizado_em,
         }
 
+
+@orm_table("professores", inheritance="JOINED_CHILD")
+@dataclass
+class Professor(Usuario):
+    cpf: str = ""
+    instituicao_id: str = ""
+    departamento_id: str = ""
+    instituicao_nome: Optional[str] = None
+    instituicao_sigla: Optional[str] = None
+    departamento_nome: Optional[str] = None
+    conta: Optional[ContaMoedas] = None
+
+    def __post_init__(self):
+        self.tipo_usuario = TipoUsuario.PROFESSOR.value
+
+    @classmethod
+    def from_row(cls, row: Any) -> "Professor":
+        keys = row.keys()
+        conta = None
+        if "conta_id" in keys and row["conta_id"]:
+            conta = ContaMoedas(
+                id=row["conta_id"],
+                usuario_id=row["id"],
+                saldo_atual=row["saldo_atual"] if "saldo_atual" in keys and row["saldo_atual"] is not None else 0,
+            )
+        return cls(
+            id=row["id"],
+            nome=row["nome"],
+            email=row["email"],
+            hash_senha=row["hash_senha"],
+            tipo_usuario=row["tipo_usuario"],
+            criado_em=row["criado_em"],
+            atualizado_em=row["atualizado_em"],
+            cpf=row["cpf"],
+            instituicao_id=row["instituicao_id"],
+            departamento_id=row["departamento_id"],
+            instituicao_nome=row["instituicao_nome"] if "instituicao_nome" in keys else None,
+            instituicao_sigla=row["instituicao_sigla"] if "instituicao_sigla" in keys else None,
+            departamento_nome=row["departamento_nome"] if "departamento_nome" in keys else None,
+            conta=conta,
+        )
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "id": self.id,
+            "nome": self.nome,
+            "email": self.email,
+            "tipoUsuario": self.tipo_usuario,
+            "cpf": self.cpf,
+            "instituicaoId": self.instituicao_id,
+            "instituicaoNome": self.instituicao_nome,
+            "instituicaoSigla": self.instituicao_sigla,
+            "departamentoId": self.departamento_id,
+            "departamentoNome": self.departamento_nome,
+            "saldoMoedas": self.conta.consultar_saldo() if self.conta else 0,
+            "contaId": self.conta.id if self.conta else None,
+            "criadoEm": self.criado_em,
+            "atualizadoEm": self.atualizado_em,
+        }
+
+
+@orm_table("vantagens")
+@dataclass
+class Vantagem:
+    id: str = field(default_factory=gerar_uuid)
+    empresa_id: str = ""
+    titulo: str = ""
+    descricao: str = ""
+    fotografia_uri: str = ""
+    custo_moedas: int = 0
+    dados_oferta: str = ""
+    ativa: bool = True
+    criado_em: str = field(default_factory=instante_atual_iso)
+    empresa_nome: Optional[str] = None
+
+    @classmethod
+    def from_row(cls, row: Any) -> "Vantagem":
+        keys = row.keys()
+        return cls(
+            id=row["id"],
+            empresa_id=row["empresa_id"],
+            titulo=row["titulo"],
+            descricao=row["descricao"],
+            fotografia_uri=row["fotografia_uri"],
+            custo_moedas=row["custo_moedas"],
+            dados_oferta=row["dados_oferta"] if "dados_oferta" in keys and row["dados_oferta"] else "",
+            ativa=bool(row["ativa"]),
+            criado_em=row["criado_em"],
+            empresa_nome=row["empresa_nome"] if "empresa_nome" in keys else None,
+        )
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "id": self.id,
+            "empresaId": self.empresa_id,
+            "empresaNome": self.empresa_nome,
+            "titulo": self.titulo,
+            "descricao": self.descricao,
+            "fotografiaUri": self.fotografia_uri,
+            "custoMoedas": self.custo_moedas,
+            "dadosOferta": self.dados_oferta,
+            "ativa": self.ativa,
+            "criadoEm": self.criado_em,
+        }
+
+
+@orm_table("resgates")
+@dataclass
+class Resgate:
+    id: str = field(default_factory=gerar_uuid)
+    aluno_id: str = ""
+    vantagem_id: str = ""
+    debito_movimentacao_id: str = ""
+    instante: str = field(default_factory=instante_atual_iso)
+    custo_aplicado: int = 0
+    status: str = StatusResgate.CONFIRMADO.value
+    codigo_conferencia: Optional[str] = None
+    vantagem_titulo: Optional[str] = None
+    vantagem_fotografia_uri: Optional[str] = None
+    empresa_id: Optional[str] = None
+    empresa_nome: Optional[str] = None
+    aluno_nome: Optional[str] = None
+    aluno_email: Optional[str] = None
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "id": self.id,
+            "alunoId": self.aluno_id,
+            "alunoNome": self.aluno_nome,
+            "alunoEmail": self.aluno_email,
+            "vantagemId": self.vantagem_id,
+            "vantagemTitulo": self.vantagem_titulo,
+            "vantagemFotografiaUri": self.vantagem_fotografia_uri,
+            "empresaId": self.empresa_id,
+            "empresaNome": self.empresa_nome,
+            "debitoMovimentacaoId": self.debito_movimentacao_id,
+            "instante": self.instante,
+            "custoAplicado": self.custo_aplicado,
+            "status": self.status,
+            "codigoConferencia": self.codigo_conferencia,
+        }
+
+
+@orm_table("notificacoes_email")
+@dataclass
+class NotificacaoEmail:
+    id: str = field(default_factory=gerar_uuid)
+    destinatario_email: str = ""
+    destinatario_nome: str = ""
+    assunto: str = ""
+    corpo: str = ""
+    tipo: str = ""
+    referencia_id: Optional[str] = None
+    enviado_smtp: bool = False
+    criado_em: str = field(default_factory=instante_atual_iso)
+
+    @classmethod
+    def from_row(cls, row: Any) -> "NotificacaoEmail":
+        return cls(
+            id=row["id"],
+            destinatario_email=row["destinatario_email"],
+            destinatario_nome=row["destinatario_nome"],
+            assunto=row["assunto"],
+            corpo=row["corpo"],
+            tipo=row["tipo"],
+            referencia_id=row["referencia_id"],
+            enviado_smtp=bool(row["enviado_smtp"]),
+            criado_em=row["criado_em"],
+        )
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "id": self.id,
+            "destinatarioEmail": self.destinatario_email,
+            "destinatarioNome": self.destinatario_nome,
+            "assunto": self.assunto,
+            "corpo": self.corpo,
+            "tipo": self.tipo,
+            "referenciaId": self.referencia_id,
+            "enviadoSmtp": self.enviado_smtp,
+            "criadoEm": self.criado_em,
+        }
+

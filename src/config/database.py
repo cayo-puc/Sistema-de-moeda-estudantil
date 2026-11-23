@@ -201,3 +201,70 @@ class DatabaseManager:
             ),
         )
 
+        # Segundo professor pré-cadastrado (UFMG)
+        cur.execute(
+            """
+            INSERT INTO usuarios (id, nome, email, hash_senha, tipo_usuario, criado_em, atualizado_em)
+            VALUES (?, ?, ?, ?, 'PROFESSOR', ?, ?)
+            """,
+            ("prof-carlos-02", "Prof. Carlos Eduardo Silva", "carlos.silva@dcc.ufmg.br", hash_padrao, agora, agora),
+        )
+        cur.execute(
+            """
+            INSERT INTO professores (usuario_id, cpf, instituicao_id, departamento_id)
+            VALUES (?, ?, ?, ?)
+            """,
+            ("prof-carlos-02", "222.333.444-55", "inst-ufmg-02", "depto-ufmg-dcc"),
+        )
+        cur.execute(
+            """
+            INSERT INTO contas_moedas (id, usuario_id, saldo_atual, atualizado_em)
+            VALUES (?, ?, 1000, ?)
+            """,
+            ("conta-prof-carlos", "prof-carlos-02", agora),
+        )
+
+        # Vantagens iniciais de demonstração
+        vantagens_demo = [
+            (
+                "vant-livro-01",
+                "empresa-demo-01",
+                "Desconto de 25% em Livros Técnicos",
+                "Válido para qualquer livro de Engenharia de Software, Arquitetura ou Algoritmos na loja física do campus.",
+                "https://images.unsplash.com/photo-1512820790803-83ca734da794?auto=format&fit=crop&w=600&q=80",
+                120,
+                "Cupom presencial - 25% OFF em livros técnicos",
+                1,
+                agora,
+            ),
+            (
+                "vant-cafe-02",
+                "empresa-demo-01",
+                "Combo Café Especial + Pão de Queijo",
+                "Um espresso duplo ou cappuccino artesanal acompanhado de pão de queijo mineiro quentinho.",
+                "https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=600&q=80",
+                45,
+                "Retirada no balcão da cafeteria universitária",
+                1,
+                agora,
+            ),
+            (
+                "vant-kit-03",
+                "empresa-demo-01",
+                "Kit Caderno Universitário + Canetas",
+                "Caderno capa dura 10 matérias exclusivo PUC Minas + conjunto de 3 canetas esferográficas.",
+                "https://images.unsplash.com/photo-1456735190827-d1262f71b8a3?auto=format&fit=crop&w=600&q=80",
+                80,
+                "Retirada na papelaria parceira",
+                1,
+                agora,
+            ),
+        ]
+        cur.executemany(
+            """
+            INSERT INTO vantagens (id, empresa_id, titulo, descricao, fotografia_uri, custo_moedas, dados_oferta, ativa, criado_em)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            vantagens_demo,
+        )
+

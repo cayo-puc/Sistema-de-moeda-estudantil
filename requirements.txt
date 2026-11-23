@@ -1,4 +1,5 @@
 # O sistema executa nativamente com a biblioteca padrão do Python 3.10+ (sqlite3 + wsgiref).
-# Pacotes opcionais para uso dos modelos declarativos SQLAlchemy:
+# Servidor WSGI para implantação em produção (Render):
+gunicorn>=21.2.0
+# Pacote opcional para uso dos modelos declarativos SQLAlchemy:
 SQLAlchemy>=2.0.0
-
